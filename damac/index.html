@@ -222,6 +222,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--brass-hi);outli
 .bmsg{position:absolute;left:50%;top:24%;transform:translate(-50%,-50%) scale(.9);z-index:6;opacity:0;transition:.3s;pointer-events:none;
   background:#E8742C;color:#2A0F02;font-weight:800;font-size:14px;padding:8px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.4)}
 .bmsg.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.mshd{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:12px;min-height:46px;border-radius:14px;
+  border:1px solid rgba(200,163,90,.55);background:rgba(200,163,90,.1);color:var(--brass-hi);font-size:16px;font-weight:700}
+.mshd span{font-size:13px;font-weight:500;color:var(--mut)}
+.mshd:active{transform:scale(.98)}
 /* manual entry */
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -331,6 +335,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
     <label class="b"><span><em>♥</em><b id="mlb"></b></span><input id="mb" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="0"></label>
   </div>
   <div class="pend" id="pend"></div>
+  <button class="mshd" id="mshd">مشدودة <span>52 لكل فريق</span></button>
 </section>
 
 <details class="calc" id="calc">
@@ -557,6 +562,10 @@ function snack(m){ const s=$('snack'); $('snackt').textContent=m; s.classList.ad
 $('snackb').onclick=()=>{ clearTimeout(snackH); $('snack').classList.remove('show'); if(!S.rounds.length) return;
   S.rounds.pop(); persist(); $('win').classList.remove('show'); render(); toast('تراجعنا عن آخر جولة'); };
 function hideSnack(){ clearTimeout(snackH); $('snack').classList.remove('show'); }
+$('mshd').onclick=()=>{
+  S.rounds.push({pts:[52,52],mode:'man',tag:'مشدودة',qahwa:false,winner:-1});
+  persist(); resetEntry(true); render(); snack('تسجّلت مشدودة: 52 لكل فريق'); checkWin();
+};
 function checkWin(){
   const w=gameWinner(); if(w<0) return;
   hideSnack();
