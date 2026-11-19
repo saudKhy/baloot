@@ -500,7 +500,7 @@ $('save').onclick=()=>{
   const a=$('ma').value, b=$('mb').value; if(a===''&&b==='') return;
   const pts=[Math.max(0,Number(a)||0),Math.max(0,Number(b)||0)];
   S.rounds.push({pts,mode:P?'calc':'man',tag:P?P.tag:'',qahwa:!!(P&&P.qahwa),winner:P?P.winner:-1});
-  persist(); resetEntry(true); render(); snack(`انسجّلت: ${S.names[0]} ${pts[0]}، ${S.names[1]} ${pts[1]}`);
+  persist(); resetEntry(true); render(); snack(`تسجّلت: ${S.names[0]} ${pts[0]}، ${S.names[1]} ${pts[1]}`);
   $('ma').blur(); $('mb').blur();
   checkWin();
 };
