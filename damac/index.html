@@ -398,6 +398,8 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 
 <div class="modal" id="win"><div class="mbox"><div class="big" id="wsuit">♠</div><h2 id="wt"></h2><p id="wp"></p>
   <div class="mb col"><button class="pri" id="wstay">الفايز مستمر، دق لفريق جديد</button><button id="wall">دق جديد للكل</button><button id="wnew">نفس الفريقين</button><button class="ghost" id="wundo">تراجع عن آخر جولة</button></div></div></div>
+<div class="modal" id="ng"><div class="mbox"><h2>صكّة جديدة</h2><p id="ngp"></p>
+  <div class="mb col"><button class="pri" id="ngstay"></button><button id="ngsame">صكّة جديدة بنفس الفريقين</button><button id="ngall">دق جديد للكل</button><button id="ngblank">صكّة جديدة بدون أسماء</button><button class="ghost" id="ngno">إلغاء</button></div></div></div>
 <div class="modal" id="conf"><div class="mbox"><h2 id="ct"></h2><p id="cp"></p>
   <div class="mb"><button id="cno">إلغاء</button><button class="pri" id="cyes">تأكيد</button></div></div></div>
 <div class="toast" id="toast"></div>
@@ -574,8 +576,22 @@ $('hist').onclick=e=>{ const b=e.target.closest('.ln'); if(!b) return; const i=+
   ask(`حذف الجولة ${i+1}؟`,`${S.names[0]} ${r.pts[0]}، ${S.names[1]} ${r.pts[1]}`,()=>{ S.rounds.splice(i,1); persist(); render(); }); };
 
 let lp, lpFired=false;
+function leader(){ const t=totals(); return t[0]===t[1]?-1:(t[0]>t[1]?0:1); }
+function resetGame(){ S.rounds=[]; persist(); resetEntry(false); prevT=null; render(); }
 $('newg').onclick=()=>{ if(lpFired){ lpFired=false; return; }
-  ask('صكّة جديدة؟','تنمسح نتيجة الصكّة الحالية. لتصفير عدّاد الصكّات بعد، اضغط على الزر مطوّل.',()=>{ S.rounds=[]; persist(); resetEntry(false); prevT=null; render(); }); };
+  hideSnack();
+  const t=totals(), L=leader();
+  $('ngp').textContent=S.rounds.length?`النتيجة الحين: ${S.names[0]} ${t[0]}، ${S.names[1]} ${t[1]}. تتصفّر وتبدأ من جديد.`:'تبدأ من صفر.';
+  $('ngstay').hidden=L<0;
+  if(L>=0) $('ngstay').textContent=`${S.names[L]} مستمرين، دق لفريق جديد`;
+  $('ngstay').dataset.l=L;
+  $('ng').classList.add('show'); };
+$('ngno').onclick=()=>$('ng').classList.remove('show');
+$('ng').addEventListener('click',e=>{ if(e.target===$('ng')) $('ng').classList.remove('show'); });
+$('ngsame').onclick=()=>{ $('ng').classList.remove('show'); resetGame(); toast('صكّة جديدة'); };
+$('ngblank').onclick=()=>{ $('ng').classList.remove('show'); S.names=['لنا','لهم']; S.teamPlayers=[[],[]]; S.wins=[0,0]; resetGame(); toast('صكّة جديدة بدون أسماء'); };
+$('ngall').onclick=()=>{ $('ng').classList.remove('show'); resetGame(); dqStart('full'); };
+$('ngstay').onclick=()=>{ const L=+$('ngstay').dataset.l; $('ng').classList.remove('show'); if(L<0) return; resetGame(); dqStart('chal',L); };
 $('newg').addEventListener('pointerdown',()=>{ lpFired=false; lp=setTimeout(()=>{ lpFired=true;
   ask('تصفير كل شي؟','تنمسح الصكّة الحالية وعدّاد الصكّات.',()=>{ S.rounds=[]; S.wins=[0,0]; persist(); resetEntry(false); prevT=null; render(); }); },700); });
 ['pointerup','pointerleave','pointercancel'].forEach(ev=>$('newg').addEventListener(ev,()=>clearTimeout(lp)));
