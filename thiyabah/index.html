@@ -183,6 +183,45 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--brass-hi);outli
 .dq-mode{background:rgba(200,163,90,.14);border:1px solid rgba(200,163,90,.4);color:var(--brass-hi);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.7;margin:0 0 14px}
 .dq-mode:empty{display:none}
 .dq-ppl span.out{opacity:.4;text-decoration:line-through}
+
+/* طاولة دق الولد */
+.tblw{position:relative;width:100%;max-width:400px;aspect-ratio:1;margin:26px auto 0;user-select:none}
+.tbl{position:absolute;inset:12%;border-radius:50%;
+  background:radial-gradient(circle at 50% 38%,#227457 0%,#0F4231 62%,#0B3324 100%);
+  box-shadow:0 0 0 11px #6A4524,0 0 0 15px #3A2412,0 22px 44px rgba(0,0,0,.55),inset 0 0 50px rgba(0,0,0,.45)}
+.tbl::after{content:"";position:absolute;inset:14%;border-radius:50%;border:1.5px dashed rgba(235,208,143,.18)}
+.seat{position:absolute;transform:translate(-50%,-50%);z-index:5;font-size:12.5px;font-weight:700;white-space:nowrap;
+  padding:4px 10px;border-radius:999px;background:rgba(5,20,14,.78);color:var(--ivory);border:1px solid var(--line);transition:background .3s,color .3s,transform .3s}
+.seat.turn{border-color:var(--brass-hi);box-shadow:0 0 0 2px rgba(235,208,143,.35)}
+.seat.in{transform:translate(-50%,-50%) scale(1.1)}
+.seat.in.k0{background:var(--ivory);color:var(--ink)}
+.seat.in.k1{background:#C93A43;color:#fff}
+.deck{position:absolute;left:50%;top:50%;width:46px;height:64px;margin:-32px 0 0 -23px;z-index:1}
+.deck i,.pcd .bk{position:absolute;inset:0;border-radius:6px;border:2px solid var(--ivory);
+  background:repeating-linear-gradient(45deg,rgba(245,238,220,.16) 0 1.5px,transparent 1.5px 6px),repeating-linear-gradient(-45deg,rgba(245,238,220,.16) 0 1.5px,transparent 1.5px 6px),#6B1D24}
+.deck i:nth-child(1){transform:translate(-2px,2px)} .deck i:nth-child(2){transform:translate(-1px,1px)}
+.deck.shuf i:nth-child(1){animation:shufA .35s ease-in-out 3} .deck.shuf i:nth-child(3){animation:shufB .35s ease-in-out 3}
+@keyframes shufA{50%{transform:translate(-30px,-4px) rotate(-12deg)}} @keyframes shufB{50%{transform:translate(30px,-4px) rotate(12deg)}}
+.deck b{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;font-size:11px;color:var(--mut);white-space:nowrap;font-family:var(--num)}
+.pcd{position:absolute;left:50%;top:50%;width:40px;height:56px;margin:-28px 0 0 -20px;z-index:2;
+  transition:transform .42s cubic-bezier(.22,.8,.25,1);perspective:400px}
+.pcd .in{position:absolute;inset:0;transition:transform .3s ease;transform-style:preserve-3d}
+.pcd.up .in{transform:rotateY(180deg)}
+.pcd .bk,.pcd .fa{-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.pcd .fa{position:absolute;inset:0;border-radius:6px;transform:rotateY(180deg);background:var(--ivory);color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--num);line-height:1}
+.pcd .fa b{font-size:16px} .pcd .fa i{font-style:normal;font-size:15px}
+.pcd .fa.red{color:var(--red)}
+.pcd.j{z-index:4} .pcd.j .fa{box-shadow:0 0 0 2.5px var(--brass-hi),0 0 18px rgba(235,208,143,.85)}
+.pcd.gone{opacity:0;transition:opacity .25s}
+@media (prefers-reduced-motion:reduce){.pcd,.pcd .in{transition:none}}
+.pcd.burn{z-index:3}
+.pcd.burn .fa{box-shadow:0 0 0 2.5px #E8742C,0 0 18px rgba(232,116,44,.85)}
+.burnl{position:absolute;transform:translate(-50%,0);font-size:11px;font-weight:700;color:#F3A35C;white-space:nowrap;z-index:3;opacity:0;transition:opacity .3s}
+.burnl.show{opacity:1}
+.bmsg{position:absolute;left:50%;top:24%;transform:translate(-50%,-50%) scale(.9);z-index:6;opacity:0;transition:.3s;pointer-events:none;
+  background:#E8742C;color:#2A0F02;font-weight:800;font-size:14px;padding:8px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.bmsg.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .mark.ar{font-family:var(--hand);font-size:34px;letter-spacing:0;margin:0;direction:rtl;line-height:1.1}
 /* manual entry */
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
@@ -346,15 +385,15 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 
 
 <div class="dq" id="dq"><div class="dq-in">
-  <div class="dq-top"><h2>دق الولد</h2><button class="ib" id="dqclose" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="dq-top"><h2>دق الولد</h2><div style="display:flex;gap:8px"><button class="ib" id="dqsnd" aria-label="الصوت" style="font-size:18px">🔊</button><button class="ib" id="dqclose" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div>
   <div class="dq-mode" id="dqm"></div>
-  <p class="dq-sub">اكتب أسماء الحاضرين، وكل واحد يكشف ورقته. اللي يطلع له ولد يلعب: الولدين السود فريق، والولدين الحمر فريق.</p>
+  <p class="dq-sub">اكتب أسماء الحاضرين، والورق يتوزع عليهم ورقة ورقة على الطاولة. اللي يطلع له ولد يلعب: الولدين السود فريق، والولدين الحمر فريق.</p>
   <form class="dq-add" id="dqf"><input id="dqn" placeholder="اسم اللاعب" maxlength="14" enterkeyhint="done"><button type="submit">أضف</button></form>
   <div class="dq-ppl" id="dqp"></div>
   <button class="save dq-go" id="dqgo">دق الورق</button>
   <div class="dq-count" id="dqc"></div>
-  <div class="dq-grid" id="dqg"></div>
-  <div class="dq-acts" id="dqa" hidden><button id="dqall">اكشف الكل</button><button id="dqagain">دق من جديد</button></div>
+  <div id="dqg"></div>
+  <div class="dq-acts" id="dqa" hidden><button id="dqall">وزّع بسرعة</button><button id="dqagain">دق من جديد</button></div>
   <div id="dqr"></div>
 </div></div>
 
@@ -574,27 +613,111 @@ function dqPool(){
 function dqNeed(){ return DQM&&DQM.mode==='chal'?2:4; }
 function dqStart(mode,w){
   DQM = mode==='chal' ? {mode, slot:1-w, winner:S.names[w]} : {mode};
-  D=null; $('dqg').innerHTML=''; $('dqa').hidden=true; $('dqr').innerHTML=''; hideSnack();
+  dealTok++; D=null; $('dqg').innerHTML=''; $('dqa').hidden=true; $('dqr').innerHTML=''; hideSnack();
   dqRender(); $('dq').classList.add('show'); $('dq').scrollTop=0;
 }
-function dqDeal(){
+// ---------- صوت الورق (يتولّد بالجوال، بدون ملفات) ----------
+let AC=null, NOISE=null;
+function ac(){
+  if(S.sound===false) return null;
+  try{
+    if(!AC){ AC=new (window.AudioContext||window.webkitAudioContext)();
+      const len=AC.sampleRate*0.3; NOISE=AC.createBuffer(1,len,AC.sampleRate); const d=NOISE.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1; }
+    if(AC.state==='suspended') AC.resume();
+  }catch(e){ AC=null; }
+  return AC;
+}
+function flick(vol=.55,at=0,dur=.08,freq=2600){
+  const a=ac(); if(!a) return;
+  const t=a.currentTime+at, src=a.createBufferSource(); src.buffer=NOISE;
+  const bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=freq*(0.85+Math.random()*.3); bp.Q.value=0.9;
+  const hp=a.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=900;
+  const g=a.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  src.connect(bp).connect(hp).connect(g).connect(a.destination); src.start(t,Math.random()*0.2,dur+0.02);
+}
+function riffle(){ for(let i=0;i<26;i++) flick(.18+Math.random()*.12, i*0.028+(i>12?0.08:0), .035, 3200); }
+function dealSnd(){ flick(.5,0,.09,2400); flick(.25,.05,.05,3400); }
+function sndIcon(){ const b=$('dqsnd'); if(b) b.textContent=S.sound===false?'🔇':'🔊'; }
+window.__snd=()=>AC&&AC.state;
+let dealTok=0;
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+async function dqDeal(){
   const pool=dqPool(), n=pool.length, need=dqNeed(); if(n<need) return;
-  let suits=DQ_SUITS;
-  if(DQM&&DQM.mode==='chal') suits=DQ_SUITS.filter(([,r])=>r===DQM.slot); // الفريق الأول ♠♣ والثاني ♥♦
-  const jacks=suits.map(([s,r])=>({rank:'J',suit:s,red:r,jack:true}));
-  const others=[]; DQ_SUITS.forEach(([s,r])=>DQ_RANKS.forEach(k=>others.push({rank:k,suit:s,red:r,jack:false})));
-  D={cards:shuffle(jacks.concat(shuffle(others).slice(0,n-need))), open:new Array(n).fill(false), names:pool.slice()};
-  $('dqg').innerHTML=D.cards.map((c,i)=>`<button class="fc" data-i="${i}" aria-label="ورقة ${esc(D.names[i])}">
-    <div class="fc-in"><div class="bk"></div>
-    <div class="fa ${c.red?'red':''} ${c.jack?'j':'no'}"><b>${c.rank}</b><i>${c.suit}</i>${c.jack?'<small>ولد</small>':''}</div></div>
-    <span>${esc(D.names[i])}</span></button>`).join('');
-  $('dqa').hidden=false; $('dqr').innerHTML='';
-  $('dqg').scrollIntoView({behavior:'smooth',block:'start'});
+  const chal=DQM&&DQM.mode==='chal';
+  const want=new Set((chal?DQ_SUITS.filter(([,r])=>r===DQM.slot):DQ_SUITS).map(([s])=>s));
+  const deck=[]; DQ_SUITS.forEach(([s,r])=>['7','8','9','10','J','Q','K','A'].forEach(k=>deck.push({rank:k,suit:s,red:r})));
+  shuffle(deck);
+  const tok=++dealTok; ac();
+  D={names:shuffle(pool.slice()), jack:{}, fast:RM, done:false};
+  $('dqr').innerHTML=''; $('dqa').hidden=false;
+  $('dqg').innerHTML=`<div class="tblw" id="tblw"><div class="tbl"></div>
+    <div class="deck shuf" id="deck"><i></i><i></i><i></i><b id="deckn">32 ورقة</b></div>
+    <div class="burnl" id="burnl">🔥 محروقة</div><div class="bmsg" id="bmsg"></div>
+    ${D.names.map((nm,i)=>`<div class="seat" id="seat${i}">${esc(nm)}</div>`).join('')}</div>`;
+  const W=$('tblw').clientWidth, c=W/2, step=2*Math.PI/n;
+  const pos=(i,R)=>{ const a=Math.PI/2 - i*step; return [c+R*Math.cos(a), c+R*Math.sin(a)]; };
+  D.names.forEach((_,i)=>{ const [x,y]=pos(i,W*.43); const s=$('seat'+i); s.style.left=x+'px'; s.style.top=y+'px'; });
+  $('tblw').scrollIntoView({behavior:'smooth',block:'center'});
+  if(!D.fast) riffle();
+  await wait(D.fast?50:1100); if(tok!==dealTok) return;
+  $('deck').classList.remove('shuf');
+  // الورقة المحروقة: تطيح أول ورقة، ولو طلعت ولد نعيد الخلط
+  const bx=56, by=0;
+  $('burnl').style.left=(c+bx)+'px'; $('burnl').style.top=(c+30)+'px';
+  let k=0;
+  while(true){
+    const bc=deck[k++];
+    const be=document.createElement('div'); be.className='pcd burn';
+    be.innerHTML=`<div class="in"><div class="bk"></div><div class="fa ${bc.red?'red':''}"><b>${bc.rank}</b><i>${bc.suit}</i></div></div>`;
+    $('tblw').appendChild(be); void be.offsetWidth;
+    be.style.transform=`translate(${bx}px,${by}px) rotate(90deg)`; dealSnd();
+    $('deckn').textContent=`${32-k} ورقة`;
+    await wait(D.fast?40:450); if(tok!==dealTok) return;
+    be.classList.add('up'); $('burnl').classList.add('show');
+    await wait(D.fast?80:650); if(tok!==dealTok) return;
+    if(bc.rank!=='J') break;
+    $('bmsg').textContent='المحروقة ولد! نعيد الخلط'; $('bmsg').classList.add('show');
+    await wait(D.fast?400:1600); if(tok!==dealTok) return;
+    be.remove(); $('burnl').classList.remove('show'); $('bmsg').classList.remove('show');
+    shuffle(deck); k=0; $('deckn').textContent='32 ورقة';
+    $('deck').classList.add('shuf'); if(!D.fast) riffle(); await wait(D.fast?50:1100); if(tok!==dealTok) return; $('deck').classList.remove('shuf');
+  }
+  const stacks=D.names.map(()=>[]);
+  let found=0, turn=0;
+  while(found<need && k<deck.length){
+    const i=turn%n; turn++;
+    if(D.jack[D.names[i]]) continue;
+    const card=deck[k++];
+    document.querySelectorAll('.seat.turn').forEach(x=>x.classList.remove('turn')); $('seat'+i).classList.add('turn');
+    const el=document.createElement('div');
+    el.className='pcd';
+    el.innerHTML=`<div class="in"><div class="bk"></div><div class="fa ${card.red?'red':''}"><b>${card.rank}</b><i>${card.suit}</i></div></div>`;
+    $('tblw').appendChild(el);
+    const [x,y]=pos(i,W*.295), rot=(Math.random()*24-12);
+    void el.offsetWidth;
+    el.style.transform=`translate(${x-c}px,${y-c}px) rotate(${rot}deg)`; if(!D.fast||k%3===0) dealSnd();
+    $('deckn').textContent=`${32-k} ورقة`;
+    if(32-k<=0) $('deck').style.visibility='hidden';
+    await wait(D.fast?40:430); if(tok!==dealTok) return;
+    el.classList.add('up');
+    stacks[i].forEach(o=>{ if(!o.classList.contains('j')){ o.classList.add('gone'); setTimeout(()=>o.remove(),260); } });
+    stacks[i]=[el];
+    const isJ=card.rank==='J'&&want.has(card.suit);
+    if(isJ){
+      el.classList.add('j'); D.jack[D.names[i]]=card; found++;
+      $('seat'+i).classList.add('in','k'+card.red);
+      await wait(D.fast?60:650);
+    } else await wait(D.fast?30:240);
+    if(tok!==dealTok) return;
+  }
+  document.querySelectorAll('.seat.turn').forEach(x=>x.classList.remove('turn'));
+  D.done=true; dqResult();
 }
 function dqTeams(){
-  if(!D) return null;
+  if(!D||!D.done) return null;
   const black=[],red=[];
-  D.cards.forEach((c,i)=>{ if(c.jack&&D.open[i]) (c.red?red:black).push(D.names[i]); });
+  D.names.forEach(nm=>{ const c=D.jack[nm]; if(c) (c.red?red:black).push(nm); });
   if(DQM&&DQM.mode==='chal'){ const pair=DQM.slot?red:black; return {pair,done:pair.length===2}; }
   return {black,red,done:black.length===2&&red.length===2};
 }
@@ -615,6 +738,7 @@ function dqResult(){
     DQM=null; persist(); $('dq').classList.remove('show'); render(); toast('اعتمدنا الفريقين'); };
 }
 function dqRender(){
+  sndIcon();
   const pool=dqPool(), need=dqNeed(), n=pool.length;
   $('dqp').innerHTML=S.players.map((p,i)=>`<span class="${pool.includes(p)?'':'out'}">${esc(p)}<button data-i="${i}" aria-label="شيل ${esc(p)}">×</button></span>`).join('');
   $('dqgo').disabled=n<need;
@@ -629,8 +753,9 @@ function dqRender(){
     $('dqc').textContent=n<4?`أضف ${4-n} ${4-n===1?'لاعب':'لاعبين'} على الأقل`:(n===4?'٤ لاعبين: كلهم يلعبون، الورق يحدد مين مع مين':`${n} لاعبين، ٤ منهم بيطلع لهم الولد`);
   }
 }
-$('dqopen').onclick=()=>{ hideSnack(); DQM=null; D=null; $('dqg').innerHTML=''; $('dqa').hidden=true; $('dqr').innerHTML=''; dqRender(); $('dq').classList.add('show'); };
-$('dqclose').onclick=()=>$('dq').classList.remove('show');
+$('dqopen').onclick=()=>{ hideSnack(); DQM=null; dealTok++; D=null; $('dqg').innerHTML=''; $('dqa').hidden=true; $('dqr').innerHTML=''; dqRender(); $('dq').classList.add('show'); };
+$('dqsnd').onclick=()=>{ S.sound=S.sound===false; persist(); sndIcon(); if(S.sound!==false) dealSnd(); };
+$('dqclose').onclick=()=>{ dealTok++; $('dq').classList.remove('show'); };
 $('dqf').onsubmit=e=>{ e.preventDefault(); const v=$('dqn').value.trim(); if(!v) return;
   if(S.players.length>=12) return toast('الحد ١٢ لاعب');
   if(S.players.includes(v)) return toast('الاسم موجود');
@@ -638,10 +763,7 @@ $('dqf').onsubmit=e=>{ e.preventDefault(); const v=$('dqn').value.trim(); if(!v)
 $('dqp').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; S.players.splice(+b.dataset.i,1); persist(); dqRender(); };
 $('dqgo').onclick=dqDeal;
 $('dqagain').onclick=dqDeal;
-$('dqg').onclick=e=>{ const c=e.target.closest('.fc'); if(!c||!D) return; const i=+c.dataset.i; if(D.open[i]) return;
-  D.open[i]=true; c.classList.add('open'); setTimeout(dqResult,450); };
-$('dqall').onclick=()=>{ if(!D) return; document.querySelectorAll('#dqg .fc').forEach((c,i)=>setTimeout(()=>{ D.open[i]=true; c.classList.add('open'); },i*90));
-  setTimeout(dqResult,D.cards.length*90+450); };
+$('dqall').onclick=()=>{ if(D&&!D.done) D.fast=true; };
 
 render();
 </script>
