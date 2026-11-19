@@ -178,6 +178,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--brass-hi);outli
 .snack button{min-height:40px;padding:0 18px;border-radius:999px;background:var(--felt);color:var(--ivory);font-weight:700;font-size:15px}
 .ibw{display:flex;flex-direction:column;align-items:center;gap:3px}
 .ibw small{font-size:11px;color:var(--mut)}
+.mb.col{flex-direction:column}
+.mb .ghost{background:transparent;color:var(--ink-soft);font-weight:600;min-height:40px}
+.dq-mode{background:rgba(200,163,90,.14);border:1px solid rgba(200,163,90,.4);color:var(--brass-hi);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.7;margin:0 0 14px}
+.dq-mode:empty{display:none}
+.dq-ppl span.out{opacity:.4;text-decoration:line-through}
 /* manual entry */
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -341,6 +346,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 
 <div class="dq" id="dq"><div class="dq-in">
   <div class="dq-top"><h2>دق الولد</h2><button class="ib" id="dqclose" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="dq-mode" id="dqm"></div>
   <p class="dq-sub">اكتب أسماء الحاضرين، وكل واحد يكشف ورقته. اللي يطلع له ولد يلعب: الولدين السود فريق، والولدين الحمر فريق.</p>
   <form class="dq-add" id="dqf"><input id="dqn" placeholder="اسم اللاعب" maxlength="14" enterkeyhint="done"><button type="submit">أضف</button></form>
   <div class="dq-ppl" id="dqp"></div>
@@ -352,7 +358,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 </div></div>
 
 <div class="modal" id="win"><div class="mbox"><div class="big" id="wsuit">♠</div><h2 id="wt"></h2><p id="wp"></p>
-  <div class="mb"><button id="wundo">تراجع</button><button class="pri" id="wnew">صكّة جديدة</button></div></div></div>
+  <div class="mb col"><button class="pri" id="wstay">الفايز مستمر، دق لفريق جديد</button><button id="wall">دق جديد للكل</button><button id="wnew">نفس الفريقين</button><button class="ghost" id="wundo">تراجع عن آخر جولة</button></div></div></div>
 <div class="modal" id="conf"><div class="mbox"><h2 id="ct"></h2><p id="cp"></p>
   <div class="mb"><button id="cno">إلغاء</button><button class="pri" id="cyes">تأكيد</button></div></div></div>
 <div class="toast" id="toast"></div>
@@ -509,15 +515,20 @@ let snackH;
 function snack(m){ const s=$('snack'); $('snackt').textContent=m; s.classList.add('show'); clearTimeout(snackH); snackH=setTimeout(()=>s.classList.remove('show'),6000); }
 $('snackb').onclick=()=>{ clearTimeout(snackH); $('snack').classList.remove('show'); if(!S.rounds.length) return;
   S.rounds.pop(); persist(); $('win').classList.remove('show'); render(); toast('تراجعنا عن آخر جولة'); };
+function hideSnack(){ clearTimeout(snackH); $('snack').classList.remove('show'); }
 function checkWin(){
   const w=gameWinner(); if(w<0) return;
+  hideSnack();
   const t=totals();
   $('wsuit').textContent=SUIT[w]; $('wsuit').style.color=w?'var(--red)':'var(--ink)';
   $('wt').textContent=`${S.names[w]} كسب الصكّة`;
   $('wp').textContent=S.rounds[S.rounds.length-1].qahwa?'خلصت بقهوة':`${t[0]} مقابل ${t[1]}`;
   $('win').classList.add('show');
 }
-$('wnew').onclick=()=>{ const w=gameWinner(); if(w>=0) S.wins[w]++; S.rounds=[]; persist(); $('win').classList.remove('show'); resetEntry(false); prevT=null; render(); };
+function endGame(){ const w=gameWinner(); if(w>=0) S.wins[w]++; S.rounds=[]; persist(); $('win').classList.remove('show'); resetEntry(false); prevT=null; render(); return w; }
+$('wnew').onclick=()=>{ endGame(); };
+$('wstay').onclick=()=>{ const w=endGame(); if(w<0) return; dqStart('chal',w); };
+$('wall').onclick=()=>{ endGame(); dqStart('full'); };
 $('wundo').onclick=()=>{ S.rounds.pop(); persist(); $('win').classList.remove('show'); render(); };
 $('undo').onclick=()=>{ if(!S.rounds.length) return toast('ما فيه جولات'); S.rounds.pop(); persist(); render(); toast('تراجعنا عن آخر جولة'); };
 $('hist').onclick=e=>{ const b=e.target.closest('.ln'); if(!b) return; const i=+b.dataset.i, r=S.rounds[i];
@@ -543,11 +554,30 @@ const DQ_SUITS=[['♠',0],['♣',0],['♥',1],['♦',1]], DQ_RANKS=['7','8','9',
 let D=null;
 function rnd(n){ try{ const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0]%n; }catch(e){ return Math.floor(Math.random()*n); } }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+let DQM=null; // null = سحب عادي لكل اللاعبين | {mode:'full'|'chal', slot, winner}
+function played(){ return Array.isArray(S.teamPlayers)?S.teamPlayers.flat():[]; }
+function dqPool(){
+  if(!DQM) return S.players.slice();
+  const out=played();
+  let pool=S.players.filter(p=>!out.includes(p));
+  if(DQM.mode==='chal'){
+    if(pool.length<2){ const losers=(S.teamPlayers&&S.teamPlayers[DQM.slot])||[]; pool=pool.concat(losers.filter(p=>S.players.includes(p)&&!pool.includes(p))); }
+  } else if(pool.length<4) pool=S.players.slice();
+  return pool;
+}
+function dqNeed(){ return DQM&&DQM.mode==='chal'?2:4; }
+function dqStart(mode,w){
+  DQM = mode==='chal' ? {mode, slot:1-w, winner:S.names[w]} : {mode};
+  D=null; $('dqg').innerHTML=''; $('dqa').hidden=true; $('dqr').innerHTML=''; hideSnack();
+  dqRender(); $('dq').classList.add('show'); $('dq').scrollTop=0;
+}
 function dqDeal(){
-  const n=S.players.length; if(n<4) return;
-  const jacks=DQ_SUITS.map(([s,r])=>({rank:'J',suit:s,red:r,jack:true}));
+  const pool=dqPool(), n=pool.length, need=dqNeed(); if(n<need) return;
+  let suits=DQ_SUITS;
+  if(DQM&&DQM.mode==='chal') suits=DQ_SUITS.filter(([,r])=>r===DQM.slot); // الفريق الأول ♠♣ والثاني ♥♦
+  const jacks=suits.map(([s,r])=>({rank:'J',suit:s,red:r,jack:true}));
   const others=[]; DQ_SUITS.forEach(([s,r])=>DQ_RANKS.forEach(k=>others.push({rank:k,suit:s,red:r,jack:false})));
-  D={cards:shuffle(jacks.concat(shuffle(others).slice(0,n-4))), open:new Array(n).fill(false), names:S.players.slice()};
+  D={cards:shuffle(jacks.concat(shuffle(others).slice(0,n-need))), open:new Array(n).fill(false), names:pool.slice()};
   $('dqg').innerHTML=D.cards.map((c,i)=>`<button class="fc" data-i="${i}" aria-label="ورقة ${esc(D.names[i])}">
     <div class="fc-in"><div class="bk"></div>
     <div class="fa ${c.red?'red':''} ${c.jack?'j':'no'}"><b>${c.rank}</b><i>${c.suit}</i>${c.jack?'<small>ولد</small>':''}</div></div>
@@ -559,22 +589,41 @@ function dqTeams(){
   if(!D) return null;
   const black=[],red=[];
   D.cards.forEach((c,i)=>{ if(c.jack&&D.open[i]) (c.red?red:black).push(D.names[i]); });
+  if(DQM&&DQM.mode==='chal'){ const pair=DQM.slot?red:black; return {pair,done:pair.length===2}; }
   return {black,red,done:black.length===2&&red.length===2};
 }
 function dqResult(){
   const t=dqTeams(); if(!t||!t.done){ $('dqr').innerHTML=''; return; }
   if($('dqr').innerHTML) return;
+  if(DQM&&DQM.mode==='chal'){
+    const k=DQM.slot, suit=k?'♥':'♠', other=k?'♠':'♥';
+    $('dqr').innerHTML=`<div class="dq-res"><div class="tm ${k?'r':''}"><em>${suit}</em>${esc(t.pair.join(' و '))}</div><div class="vs">يدخلون ضد</div>
+      <div class="tm ${k?'':'r'}"><em>${other}</em>${esc(DQM.winner)}</div><button id="dqok">اعتمد الفريق الجديد</button></div>`;
+    $('dqok').onclick=()=>{ S.names[k]=t.pair.join(' و '); S.teamPlayers=Array.isArray(S.teamPlayers)?S.teamPlayers:[[],[]]; S.teamPlayers[k]=t.pair.slice(); S.wins[k]=0;
+      DQM=null; persist(); $('dq').classList.remove('show'); render(); toast('دخل الفريق الجديد'); };
+    return;
+  }
   $('dqr').innerHTML=`<div class="dq-res"><div class="tm"><em>♠</em>${esc(t.black.join(' و '))}</div><div class="vs">ضد</div>
     <div class="tm r"><em>♥</em>${esc(t.red.join(' و '))}</div><button id="dqok">اعتمد الفريقين</button></div>`;
-  $('dqok').onclick=()=>{ S.names=[t.black.join(' و '),t.red.join(' و ')]; persist(); $('dq').classList.remove('show'); render(); toast('اعتمدنا الفريقين'); };
+  $('dqok').onclick=()=>{ S.names=[t.black.join(' و '),t.red.join(' و ')]; S.teamPlayers=[t.black.slice(),t.red.slice()]; S.wins=[0,0];
+    DQM=null; persist(); $('dq').classList.remove('show'); render(); toast('اعتمدنا الفريقين'); };
 }
 function dqRender(){
-  $('dqp').innerHTML=S.players.map((p,i)=>`<span>${esc(p)}<button data-i="${i}" aria-label="شيل ${esc(p)}">×</button></span>`).join('');
-  const n=S.players.length;
-  $('dqgo').disabled=n<4;
-  $('dqc').textContent=n<4?`أضف ${4-n} ${4-n===1?'لاعب':'لاعبين'} على الأقل`:(n===4?'٤ لاعبين: كلهم يلعبون، الورق يحدد مين مع مين':`${n} لاعبين، ٤ منهم بيطلع لهم الولد`);
+  const pool=dqPool(), need=dqNeed(), n=pool.length;
+  $('dqp').innerHTML=S.players.map((p,i)=>`<span class="${pool.includes(p)?'':'out'}">${esc(p)}<button data-i="${i}" aria-label="شيل ${esc(p)}">×</button></span>`).join('');
+  $('dqgo').disabled=n<need;
+  if(DQM&&DQM.mode==='chal'){
+    $('dqm').textContent=`${DQM.winner} فازوا ومستمرين. يندق الولد بين اللي ما لعبوا، واللي يطلع له ولد ${DQM.slot?'أحمر ♥♦':'أسود ♠♣'} يدخل.`;
+    $('dqc').textContent=n<need?`أضف ${need-n===1?'لاعب':'لاعبين'} عشان يكتمل الفريق`:`${n} بالسحب، يدخل منهم ٢`;
+  } else if(DQM){
+    $('dqm').textContent='دق جديد: اللي لعبوا الصكّة اللي فاتت مشطوبين، والسحب بين الباقين.';
+    $('dqc').textContent=n<need?`أضف ${need-n} ${need-n===1?'لاعب':'لاعبين'} على الأقل`:`${n} بالسحب، يلعب منهم ٤`;
+  } else {
+    $('dqm').textContent='';
+    $('dqc').textContent=n<4?`أضف ${4-n} ${4-n===1?'لاعب':'لاعبين'} على الأقل`:(n===4?'٤ لاعبين: كلهم يلعبون، الورق يحدد مين مع مين':`${n} لاعبين، ٤ منهم بيطلع لهم الولد`);
+  }
 }
-$('dqopen').onclick=()=>{ dqRender(); $('dq').classList.add('show'); };
+$('dqopen').onclick=()=>{ hideSnack(); DQM=null; D=null; $('dqg').innerHTML=''; $('dqa').hidden=true; $('dqr').innerHTML=''; dqRender(); $('dq').classList.add('show'); };
 $('dqclose').onclick=()=>$('dq').classList.remove('show');
 $('dqf').onsubmit=e=>{ e.preventDefault(); const v=$('dqn').value.trim(); if(!v) return;
   if(S.players.length>=12) return toast('الحد ١٢ لاعب');
