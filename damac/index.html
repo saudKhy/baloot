@@ -39,7 +39,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--brass-hi);outli
 .wrap{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 28px)}
 
 /* header */
-.top{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;margin-bottom:18px}
+.top{display:grid;grid-template-columns:64px 1fr 64px;justify-items:center;align-items:center;margin-bottom:18px}
 .brand{text-align:center;line-height:1}
 .mark{font-family:var(--num);font-weight:700;font-size:26px;letter-spacing:.32em;margin-inline-start:.32em;direction:ltr;
   color:var(--brass-hi);text-shadow:0 2px 0 rgba(0,0,0,.35),0 0 18px rgba(200,163,90,.25)}
@@ -169,6 +169,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--brass-hi);outli
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 
+
+/* undo snackbar */
+.snack{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);z-index:10;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.25s;
+  display:flex;align-items:center;gap:14px;padding:8px 8px 8px 18px;padding-inline:18px 8px;border-radius:999px;background:var(--ivory);color:var(--ink);
+  box-shadow:0 10px 26px rgba(0,0,0,.4);font-size:15px;font-weight:600;white-space:nowrap}
+.snack.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.snack button{min-height:40px;padding:0 18px;border-radius:999px;background:var(--felt);color:var(--ivory);font-weight:700;font-size:15px}
+.ibw{display:flex;flex-direction:column;align-items:center;gap:3px}
+.ibw small{font-size:11px;color:var(--mut)}
 /* manual entry */
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -249,9 +258,9 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 <div class="wrap">
 
 <header class="top">
-  <button class="ib" id="newg" aria-label="صكّة جديدة"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7L20 8.5"/><path d="M20 3.5v5h-5"/></svg></button>
+  <div class="ibw"><button class="ib" id="newg" aria-label="صكّة جديدة"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7L20 8.5"/><path d="M20 3.5v5h-5"/></svg></button><small>صكّة جديدة</small></div>
   <div class="brand"><div class="mark">DAMAC</div><div class="tag">حاسبة البلوت</div></div>
-  <button class="ib" id="undo" aria-label="تراجع عن آخر جولة"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+  <div class="ibw"><button class="ib" id="undo" aria-label="تراجع عن آخر جولة"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><small>تراجع</small></div>
 </header>
 
 <button class="dq-open" id="dqopen"><span>♠</span>دق الولد<span class="r">♥</span></button>
@@ -347,6 +356,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 <div class="modal" id="conf"><div class="mbox"><h2 id="ct"></h2><p id="cp"></p>
   <div class="mb"><button id="cno">إلغاء</button><button class="pri" id="cyes">تأكيد</button></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="snack" id="snack" role="status"><span id="snackt"></span><button id="snackb">تراجع</button></div>
 
 <script>
 const TARGET=152, $=id=>document.getElementById(id), KEY='damac-baloot-v1';
@@ -490,10 +500,15 @@ $('save').onclick=()=>{
   const a=$('ma').value, b=$('mb').value; if(a===''&&b==='') return;
   const pts=[Math.max(0,Number(a)||0),Math.max(0,Number(b)||0)];
   S.rounds.push({pts,mode:P?'calc':'man',tag:P?P.tag:'',qahwa:!!(P&&P.qahwa),winner:P?P.winner:-1});
-  persist(); resetEntry(true); render(); toast('انسجّلت الجولة');
+  persist(); resetEntry(true); render(); snack(`انسجّلت: ${S.names[0]} ${pts[0]}، ${S.names[1]} ${pts[1]}`);
   $('ma').blur(); $('mb').blur();
   checkWin();
 };
+
+let snackH;
+function snack(m){ const s=$('snack'); $('snackt').textContent=m; s.classList.add('show'); clearTimeout(snackH); snackH=setTimeout(()=>s.classList.remove('show'),6000); }
+$('snackb').onclick=()=>{ clearTimeout(snackH); $('snack').classList.remove('show'); if(!S.rounds.length) return;
+  S.rounds.pop(); persist(); $('win').classList.remove('show'); render(); toast('تراجعنا عن آخر جولة'); };
 function checkWin(){
   const w=gameWinner(); if(w<0) return;
   const t=totals();
@@ -504,7 +519,7 @@ function checkWin(){
 }
 $('wnew').onclick=()=>{ const w=gameWinner(); if(w>=0) S.wins[w]++; S.rounds=[]; persist(); $('win').classList.remove('show'); resetEntry(false); prevT=null; render(); };
 $('wundo').onclick=()=>{ S.rounds.pop(); persist(); $('win').classList.remove('show'); render(); };
-$('undo').onclick=()=>{ if(!S.rounds.length) return toast('ما فيه جولات'); S.rounds.pop(); persist(); render(); toast('انحذفت آخر جولة'); };
+$('undo').onclick=()=>{ if(!S.rounds.length) return toast('ما فيه جولات'); S.rounds.pop(); persist(); render(); toast('تراجعنا عن آخر جولة'); };
 $('hist').onclick=e=>{ const b=e.target.closest('.ln'); if(!b) return; const i=+b.dataset.i, r=S.rounds[i];
   ask(`حذف الجولة ${i+1}؟`,`${S.names[0]} ${r.pts[0]}، ${S.names[1]} ${r.pts[1]}`,()=>{ S.rounds.splice(i,1); persist(); render(); }); };
 
