@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DAMAC">
+<meta name="theme-color" content="#0E3B2C">
+<title>DAMAC — حاسبة بلوت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --felt:#0E3B2C; --felt-deep:#082419; --felt-lite:#155440;
+  --ivory:#F5EEDC; --ivory-2:#E6DBC0; --ink:#1D1B16; --ink-soft:#6F6754;
+  --red:#A8242C; --brass:#C8A35A; --brass-hi:#EBD08F;
+  --mut:#A9C2B5; --line:rgba(245,238,220,.10);
+  --ui:'IBM Plex Sans Arabic',-apple-system,system-ui,sans-serif;
+  --num:'Reem Kufi','IBM Plex Sans Arabic',sans-serif;
+  --hand:'Aref Ruqaa','IBM Plex Sans Arabic',serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--felt-deep)}
+body{
+  margin:0;color:var(--ivory);font-family:var(--ui);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none;
+  min-height:100vh;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(120% 70% at 50% 0%, #1A6049 0%, var(--felt) 42%, var(--felt-deep) 100%);
+}
+input{font-family:inherit;-webkit-user-select:text;user-select:text}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--brass-hi);outline-offset:2px}
+.wrap{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 28px)}
+
+/* header */
+.top{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;margin-bottom:18px}
+.brand{text-align:center;line-height:1}
+.mark{font-family:var(--num);font-weight:700;font-size:26px;letter-spacing:.32em;margin-inline-start:.32em;direction:ltr;
+  color:var(--brass-hi);text-shadow:0 2px 0 rgba(0,0,0,.35),0 0 18px rgba(200,163,90,.25)}
+.tag{font-family:var(--hand);font-size:17px;color:var(--mut);margin-top:4px}
+.ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.22);border:1px solid var(--line)}
+.ib svg{width:19px;height:19px;stroke:var(--ivory);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ib:active{transform:scale(.92)}
+
+/* score cards */
+.table{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:6px 4px 22px}
+.pc{position:relative;background:var(--ivory);color:var(--ink);border-radius:14px;padding:16px 14px 14px;min-height:196px;
+  display:flex;flex-direction:column;align-items:center;
+  box-shadow:0 1px 0 #fff inset,0 14px 28px rgba(0,0,0,.38),0 2px 4px rgba(0,0,0,.25);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.pc::before{content:"";position:absolute;inset:7px;border:1px solid var(--ivory-2);border-radius:9px;pointer-events:none}
+.pc.a{transform:rotate(-2.2deg)} .pc.b{transform:rotate(2.2deg)}
+.pc.a.lead{transform:rotate(-1deg) translateY(-8px)} .pc.b.lead{transform:rotate(1deg) translateY(-8px)}
+.pip{position:absolute;font-size:20px;line-height:1;text-align:center;font-family:var(--num)}
+.pip small{display:block;font-size:11px;font-weight:700;margin-top:2px}
+.pip.t{top:13px;right:14px} .pip.bt{bottom:13px;left:14px;transform:rotate(180deg)}
+.pc.b .pip{color:var(--red)}
+.tname{width:78%;text-align:center;background:transparent;border:0;border-bottom:1px dashed transparent;color:var(--ink);
+  font-family:var(--hand);font-size:22px;font-weight:700;padding:0 0 2px;outline:none;margin-top:4px}
+.tname:focus{border-bottom-color:var(--ink-soft)}
+.score{font-family:var(--num);font-weight:700;font-size:64px;line-height:1;margin:10px 0 6px;font-variant-numeric:tabular-nums}
+.pc.b .score{color:var(--red)}
+.score.bump{animation:bump .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes bump{0%{transform:scale(.6);opacity:.2}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.rem{font-size:12px;color:var(--ink-soft);font-weight:500}
+.meter{width:72%;height:3px;background:var(--ivory-2);border-radius:3px;margin-top:8px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ink);transition:width .5s}
+.pc.b .meter i{background:var(--red)}
+
+/* entry */
+.sect{padding:16px 0;border-top:1px solid var(--line)}
+.lbl{font-size:13px;color:var(--mut);margin:0 2px 9px;font-weight:500}
+.seg{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(0,0,0,.26);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+.seg button{flex:1;min-height:44px;border-radius:999px;font-size:16px;font-weight:600;color:var(--mut);transition:background .18s,color .18s}
+.seg button.on{background:var(--ivory);color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.seg button .s{font-family:var(--num);margin-inline-end:5px}
+.seg button.on .s.r{color:var(--red)}
+.seg.sm button{font-size:14px;min-height:38px}
+.mode button{font-size:18px;min-height:48px}
+
+.abn{display:flex;gap:10px}
+.abn input{flex:1;min-width:0;height:64px;border:0;border-radius:16px;background:var(--ivory);color:var(--ink);
+  font-family:var(--num);font-size:34px;font-weight:700;text-align:center;outline:none;
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.18)}
+.abn input::placeholder{color:#b9ae93;font-size:20px;font-family:var(--ui);font-weight:500}
+.abn input:disabled{opacity:.45}
+.abn .seg{flex-direction:column;border-radius:18px;width:104px}
+.abn .seg button{border-radius:14px}
+.split{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin:10px 4px 0}
+.split b{color:var(--ivory);font-family:var(--num);font-weight:500}
+.kab{display:flex;gap:10px;margin-top:12px}
+.kab button{flex:1;min-height:40px;border-radius:12px;border:1px dashed rgba(245,238,220,.25);color:var(--mut);font-size:14px;font-weight:600}
+.kab button.on{border:1px solid var(--brass);color:var(--brass-hi);background:rgba(200,163,90,.12)}
+
+.proj{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pcol{background:rgba(0,0,0,.2);border-radius:16px;padding:10px 12px}
+.pcol h4{margin:0 0 4px;font-family:var(--hand);font-size:18px;font-weight:700;color:var(--ivory)}
+.pcol h4 span{font-family:var(--num);margin-inline-end:6px}
+.pcol.b h4 span{color:#E46A71}
+.st{display:flex;align-items:center;justify-content:space-between;min-height:40px}
+.st>span{font-size:14px;color:var(--ivory)}
+.st .c{display:flex;align-items:center;gap:4px}
+.st button{width:32px;height:32px;border-radius:50%;background:rgba(245,238,220,.08);font-size:18px;line-height:1;color:var(--ivory)}
+.st button:active{background:rgba(245,238,220,.2)}
+.st em{font-style:normal;width:20px;text-align:center;font-family:var(--num);font-size:17px;color:rgba(245,238,220,.35)}
+.st em.nz{color:var(--brass-hi)}
+
+/* commit bar */
+.commit{position:sticky;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:3;margin-top:6px;
+  display:flex;align-items:center;gap:10px;padding:8px;border-radius:22px;
+  background:rgba(8,36,25,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.pv{flex:1;display:flex;justify-content:space-around;align-items:center}
+.pv div{text-align:center;min-width:64px}
+.pv small{display:block;font-size:12px;color:var(--mut)}
+.pv b{font-family:var(--num);font-size:26px;font-weight:700;color:var(--ivory)}
+.pv .y{color:#F08B90}
+.pv .sep{width:1px;height:32px;background:var(--line);min-width:0}
+.save{height:58px;padding:0 24px;border-radius:16px;font-size:17px;font-weight:700;color:#2A1F0A;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass));box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 4px 12px rgba(0,0,0,.3)}
+.save:disabled{filter:grayscale(.7);opacity:.4}
+.save:active{transform:translateY(1px)}
+.note{min-height:20px;text-align:center;font-size:13px;color:var(--brass-hi);margin-top:10px}
+.note.err{color:#F3A3A7}
+
+/* score sheet */
+.sheet{margin-top:22px;background:var(--ivory);color:var(--ink);border-radius:6px 6px 14px 14px;padding:16px 0 18px;position:relative;
+  box-shadow:0 14px 30px rgba(0,0,0,.35);
+  background-image:repeating-linear-gradient(180deg,transparent 0 37px,rgba(70,110,150,.18) 37px 38px);
+  background-position:0 58px}
+.sheet::before{content:"";position:absolute;top:52px;bottom:0;left:50%;width:1.5px;background:rgba(168,36,44,.45)}
+.sheet h3{margin:0 18px 6px;font-family:var(--hand);font-size:22px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;position:relative;background:var(--ivory)}
+.sheet h3 small{font-family:var(--ui);font-size:12px;font-weight:500;color:var(--ink-soft)}
+.cols,.ln,.sum{display:grid;grid-template-columns:1fr 1fr;position:relative}
+.cols{font-family:var(--hand);font-size:19px;font-weight:700;text-align:center;height:38px;align-items:center}
+.cols span:last-child{color:var(--red)}
+.ln{height:38px;align-items:end;padding-bottom:4px;width:100%;text-align:center}
+.ln span{font-family:var(--hand);font-size:24px;font-weight:700;line-height:1}
+.ln span.b{color:var(--red)}
+.ln span.z{color:#c7bda3}
+.ln i{position:absolute;left:50%;transform:translateX(-50%);bottom:7px;font-style:normal;font-size:10px;color:var(--ink-soft);background:var(--ivory);padding:0 4px;white-space:nowrap}
+.ln:active{background:rgba(168,36,44,.06)}
+.sum{margin-top:6px;padding-top:6px;border-top:3px double var(--ink);margin-inline:18px;text-align:center}
+.sum span{font-family:var(--hand);font-size:30px;font-weight:700}
+.sum span:last-child{color:var(--red)}
+.empty{text-align:center;color:var(--ink-soft);font-size:14px;padding:26px 20px 10px;position:relative}
+.hint{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px;position:relative}
+
+/* modals */
+.modal{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;padding:28px;background:rgba(4,18,12,.7);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.modal.show{display:flex}
+.mbox{width:100%;max-width:340px;background:var(--ivory);color:var(--ink);border-radius:18px;padding:26px 22px 20px;text-align:center;position:relative;animation:pop .3s cubic-bezier(.2,.8,.2,1)}
+.mbox::before{content:"";position:absolute;inset:8px;border:1px solid var(--ivory-2);border-radius:12px;pointer-events:none}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+.mbox .big{font-family:var(--num);font-size:40px;color:var(--red);line-height:1}
+.mbox h2{font-family:var(--hand);font-size:28px;margin:10px 0 4px}
+.mbox p{margin:0 0 20px;color:var(--ink-soft);font-size:15px;line-height:1.6}
+.mb{display:flex;gap:10px;position:relative}
+.mb button{flex:1;min-height:48px;border-radius:14px;font-weight:700;font-size:16px;background:var(--ivory-2);color:var(--ink)}
+.mb .pri{background:var(--felt);color:var(--ivory)}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);transform:translate(-50%,20px);opacity:0;transition:.25s;z-index:10;
+  background:var(--ivory);color:var(--ink);padding:9px 18px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.35);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+
+/* manual entry */
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.mi{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mi label{display:block}
+.mi span{display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--hand);font-size:19px;font-weight:700;margin-bottom:8px;white-space:nowrap;overflow:hidden}
+.mi span em{font-style:normal;font-family:var(--num);font-size:16px}
+.mi .b span em{color:#E46A71}
+.mi input{display:block;width:100%;height:76px;border:0;border-radius:18px;background:var(--ivory);color:var(--ink);
+  font-family:var(--num);font-size:40px;font-weight:700;text-align:center;outline:none;box-shadow:inset 0 2px 5px rgba(0,0,0,.18)}
+.mi .b input{color:var(--red)}
+.mi input::placeholder{color:#cfc5ab}
+.pend{min-height:0;text-align:center;font-size:13px;color:var(--brass-hi);margin-top:10px}
+.pend:empty{display:none}
+.calc{border-top:1px solid var(--line);padding-top:12px}
+.calc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;
+  padding:14px 16px;border-radius:16px;border:1px dashed rgba(245,238,220,.25);color:var(--mut);font-size:15px;font-weight:600}
+.calc summary::-webkit-details-marker{display:none}
+.calc summary svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s;flex:none}
+.calc[open] summary{border-style:solid;border-color:var(--brass);color:var(--brass-hi)}
+.calc[open] summary svg{transform:rotate(180deg)}
+.calc-in{padding-top:4px}
+.calc-in>.sect:first-child{border-top:0}
+.cres{display:flex;align-items:center;gap:10px;padding:8px;border-radius:20px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.ctr{height:54px;padding:0 16px;border-radius:14px;border:1.5px solid var(--brass);color:var(--brass-hi);font-weight:700;font-size:15px}
+.ctr:disabled{opacity:.35}
+
+/* دق الولد */
+.dq-open{display:flex;align-items:center;gap:8px;margin:-4px auto 14px;padding:9px 20px;border-radius:999px;background:rgba(0,0,0,.24);border:1px solid var(--line);font-size:15px;font-weight:600;color:var(--ivory)}
+.dq-open .r{color:#E46A71}
+.dq-open:active{transform:scale(.96)}
+.tname.long{font-size:16px}
+.dq{position:fixed;inset:0;z-index:8;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:radial-gradient(120% 70% at 50% 0%, #1A6049 0%, var(--felt) 45%, var(--felt-deep) 100%)}
+.dq.show{display:block;animation:up .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.dq-in{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 30px)}
+.dq-top{display:flex;align-items:center;justify-content:space-between}
+.dq-top h2{margin:0;font-family:var(--hand);font-size:32px;font-weight:700}
+.dq-sub{color:var(--mut);font-size:14px;line-height:1.7;margin:6px 0 16px;max-width:42ch}
+.dq-add{display:flex;gap:8px}
+.dq-add input{flex:1;min-width:0;height:50px;border:0;border-radius:14px;background:var(--ivory);color:var(--ink);font-size:17px;padding:0 14px;outline:none}
+.dq-add button{height:50px;padding:0 18px;border-radius:14px;background:rgba(245,238,220,.12);font-weight:700;font-size:15px}
+.dq-ppl{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px;min-height:10px}
+.dq-ppl span{display:inline-flex;align-items:center;gap:4px;padding:6px 6px 6px 12px;padding-inline:12px 6px;border-radius:999px;background:rgba(0,0,0,.25);font-size:14px}
+.dq-ppl button{width:24px;height:24px;border-radius:50%;background:rgba(245,238,220,.1);font-size:14px;line-height:1}
+.dq-go{width:100%}
+.dq-count{text-align:center;font-size:13px;color:var(--mut);margin-top:8px}
+.dq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 10px;margin-top:22px;perspective:900px}
+.fc{display:flex;flex-direction:column;align-items:center;gap:6px}
+.fc-in{position:relative;width:100%;aspect-ratio:5/7;transition:transform .6s cubic-bezier(.3,.7,.2,1);transform-style:preserve-3d}
+.fc.open .fc-in{transform:rotateY(180deg)}
+.fc .bk,.fc .fa{position:absolute;inset:0;border-radius:9px;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.fc .bk{background:
+  repeating-linear-gradient(45deg,rgba(245,238,220,.14) 0 2px,transparent 2px 9px),
+  repeating-linear-gradient(-45deg,rgba(245,238,220,.14) 0 2px,transparent 2px 9px),#6B1D24;
+  border:4px solid var(--ivory)}
+.fc .fa{transform:rotateY(180deg);background:var(--ivory);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--num)}
+.fc .fa.red{color:var(--red)}
+.fc .fa b{font-size:30px;line-height:1}
+.fc .fa i{font-style:normal;font-size:22px;line-height:1.1}
+.fc .fa.j{box-shadow:0 0 0 3px var(--brass-hi),0 8px 20px rgba(0,0,0,.45)}
+.fc .fa.j small{font-family:var(--hand);font-size:13px;font-weight:700;margin-top:2px}
+.fc .fa.no{opacity:.55}
+.fc>span{font-size:13px;color:var(--ivory);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dq-acts{display:flex;gap:10px;margin-top:18px}
+.dq-acts button{flex:1;min-height:44px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--line);font-size:14px;font-weight:600}
+.dq-res{margin-top:18px;background:var(--ivory);color:var(--ink);border-radius:16px;padding:16px;text-align:center;animation:pop .3s cubic-bezier(.2,.8,.2,1)}
+.dq-res .tm{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--hand);font-size:24px;font-weight:700;padding:4px 0}
+.dq-res .tm.r{color:var(--red)}
+.dq-res .tm em{font-style:normal;font-family:var(--num);font-size:22px}
+.dq-res .vs{font-size:13px;color:var(--ink-soft)}
+.dq-res button{margin-top:14px;width:100%;min-height:50px;border-radius:14px;background:var(--felt);color:var(--ivory);font-weight:700;font-size:16px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <button class="ib" id="newg" aria-label="صكّة جديدة"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7L20 8.5"/><path d="M20 3.5v5h-5"/></svg></button>
+  <div class="brand"><div class="mark">DAMAC</div><div class="tag">حاسبة البلوت</div></div>
+  <button class="ib" id="undo" aria-label="تراجع عن آخر جولة"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+</header>
+
+<button class="dq-open" id="dqopen"><span>♠</span>دق الولد<span class="r">♥</span></button>
+
+<section class="table">
+  <div class="pc a" id="ta">
+    <div class="pip t">♠<small id="wa">0</small></div><div class="pip bt">♠</div>
+    <input class="tname" id="na" maxlength="24" aria-label="اسم الفريق الأول">
+    <div class="score" id="sa">0</div>
+    <div class="rem" id="ra"></div><div class="meter"><i id="ba"></i></div>
+  </div>
+  <div class="pc b" id="tb">
+    <div class="pip t">♥<small id="wb">0</small></div><div class="pip bt">♥</div>
+    <input class="tname" id="nb" maxlength="24" aria-label="اسم الفريق الثاني">
+    <div class="score" id="sb">0</div>
+    <div class="rem" id="rb"></div><div class="meter"><i id="bb"></i></div>
+  </div>
+</section>
+
+<section class="sect">
+  <div class="lbl">نتيجة الجولة</div>
+  <div class="mi">
+    <label class="a"><span><em>♠</em><b id="mla"></b></span><input id="ma" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="0"></label>
+    <label class="b"><span><em>♥</em><b id="mlb"></b></span><input id="mb" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="0"></label>
+  </div>
+  <div class="pend" id="pend"></div>
+</section>
+
+<details class="calc" id="calc">
+  <summary><span>صار خلاف؟ احسبها بالأبناط والمشاريع</span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
+  <div class="calc-in">
+<section class="sect">
+  <div class="seg mode" id="mode"><button data-v="sun">صن</button><button data-v="hokm">حكم</button></div>
+</section>
+
+<section class="sect">
+  <div class="lbl">المشتري</div>
+  <div class="seg sm" id="buyer"><button data-v="0"></button><button data-v="1"></button></div>
+  <div class="lbl" style="margin-top:14px">الدبل</div>
+  <div class="seg sm" id="mult"></div>
+</section>
+
+<section class="sect">
+  <div class="lbl">الأبناط</div>
+  <div class="abn">
+    <input id="abn" type="number" inputmode="numeric" pattern="[0-9]*" aria-label="الأبناط">
+    <div class="seg sm" id="side"><button data-v="0"></button><button data-v="1"></button></div>
+  </div>
+  <div class="split" id="split"></div>
+  <div class="kab"><button data-k="0" id="ka"></button><button data-k="1" id="kb"></button></div>
+</section>
+
+<section class="sect">
+  <div class="lbl">المشاريع</div>
+  <div class="proj" id="proj"></div>
+</section>
+
+  <div class="cres">
+    <div class="pv"><div><small id="cla"></small><b id="ca">–</b></div><span class="sep"></span><div><small id="clb"></small><b class="y" id="cb">–</b></div></div>
+    <button class="ctr" id="ctr">انقلها للنتيجة</button>
+  </div>
+  <div class="note" id="note"></div>
+  </div>
+</details>
+
+<div class="commit">
+  <div class="pv"><div><small id="pla"></small><b id="pa">–</b></div><span class="sep"></span><div><small id="plb"></small><b class="y" id="pb">–</b></div></div>
+  <button class="save" id="save">سجّل الجولة</button>
+</div>
+
+<section class="sheet">
+  <h3>ورقة الحساب <small id="hc"></small></h3>
+  <div id="hist"></div>
+</section>
+
+</div>
+
+
+<div class="dq" id="dq"><div class="dq-in">
+  <div class="dq-top"><h2>دق الولد</h2><button class="ib" id="dqclose" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <p class="dq-sub">اكتب أسماء الحاضرين، وكل واحد يكشف ورقته. اللي يطلع له ولد يلعب: الولدين السود فريق، والولدين الحمر فريق.</p>
+  <form class="dq-add" id="dqf"><input id="dqn" placeholder="اسم اللاعب" maxlength="14" enterkeyhint="done"><button type="submit">أضف</button></form>
+  <div class="dq-ppl" id="dqp"></div>
+  <button class="save dq-go" id="dqgo">دق الورق</button>
+  <div class="dq-count" id="dqc"></div>
+  <div class="dq-grid" id="dqg"></div>
+  <div class="dq-acts" id="dqa" hidden><button id="dqall">اكشف الكل</button><button id="dqagain">دق من جديد</button></div>
+  <div id="dqr"></div>
+</div></div>
+
+<div class="modal" id="win"><div class="mbox"><div class="big" id="wsuit">♠</div><h2 id="wt"></h2><p id="wp"></p>
+  <div class="mb"><button id="wundo">تراجع</button><button class="pri" id="wnew">صكّة جديدة</button></div></div></div>
+<div class="modal" id="conf"><div class="mbox"><h2 id="ct"></h2><p id="cp"></p>
+  <div class="mb"><button id="cno">إلغاء</button><button class="pri" id="cyes">تأكيد</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TARGET=152, $=id=>document.getElementById(id), KEY='damac-baloot-v1';
+const SUIT=['♠','♥'];
+let S={names:['لنا','لهم'],rounds:[],wins:[0,0]};
+try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.rounds) S=Object.assign(S,s);}catch(e){}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+
+const blankProj=()=>({sira:0,f50:0,f100:0,f400:0,bal:0});
+let E, P=null;
+function resetEntry(keepMode){
+  E={mode:keepMode?E.mode:'sun',buyer:0,mult:1,side:0,abn:'',kaboot:-1,proj:[blankProj(),blankProj()]};
+  $('abn').value='';$('ma').value='';$('mb').value=''; P=null;
+}
+resetEntry(false);
+
+const PROJ={
+  sun:[['sira','سرا',4],['f50','خمسين',10],['f100','مية',20],['f400','أربعمية',40]],
+  hokm:[['sira','سرا',2],['f50','خمسين',5],['f100','مية',10],['bal','بلوت',2]]
+};
+const MULTS={sun:[[1,'عادي'],[2,'دبل']],hokm:[[1,'عادي'],[2,'دبل'],[3,'ثري'],[4,'فور'],['q','قهوة']]};
+
+function compute(){
+  const sun=E.mode==='sun', base=sun?26:16, maxA=sun?130:162;
+  const pp=[0,0], bal=[0,0];
+  for(let i=0;i<2;i++) PROJ[E.mode].forEach(([k,,v])=>{ if(k==='bal') bal[i]+=E.proj[i][k]*v; else pp[i]+=E.proj[i][k]*v; });
+  let card=[0,0], err='', ready=true, split=null;
+  if(E.kaboot>=0){ card[E.kaboot]=sun?44:25; }
+  else if(E.abn===''){ ready=false; }
+  else{
+    const x=Number(E.abn);
+    if(!Number.isFinite(x)||x<0||x>maxA){ err=`الأبناط من 0 إلى ${maxA}`; ready=false; }
+    else{
+      const p=sun?Math.round(x/5):(x%10>5?Math.ceil(x/10):Math.floor(x/10));
+      card[E.side]=p; card[1-E.side]=base-p;
+      split=E.side===0?[x,maxA-x]:[maxA-x,x];
+    }
+  }
+  const b=E.buyer, o=1-b, m=E.mult==='q'?1:E.mult, raw=[card[0]+pp[0],card[1]+pp[1]];
+  let res=[0,0], note='', winner=-1, lost=false;
+  if(E.kaboot>=0){ const k=E.kaboot; res[k]=raw[k]*m; winner=k; note=`كبوت لـ${S.names[k]}`; }
+  else if(raw[b]<raw[o]){ res[o]=(base+pp[0]+pp[1])*m; winner=o; lost=true; note=`${S.names[b]} خسر الشراء، النقاط كلها لـ${S.names[o]}`; }
+  else if(E.mult!==1){ res[b]=(base+pp[0]+pp[1])*m; winner=b; note=`${S.names[b]} كسب ${E.mult==='q'?'القهوة':'الدبل'}`; }
+  else{ res=raw.slice(); winner=res[0]>=res[1]?0:1; }
+  res[0]+=bal[0]; res[1]+=bal[1];
+  if(E.mult==='q'&&ready) note=`قهوة — ${S.names[winner]} يكسب الصكّة`;
+  return {res,note,err,ready,split,winner,lost};
+}
+
+const totals=()=>S.rounds.reduce((t,r)=>{t[0]+=r.pts[0];t[1]+=r.pts[1];return t;},[0,0]);
+function gameWinner(){
+  const last=S.rounds[S.rounds.length-1];
+  if(last&&last.qahwa) return last.winner;
+  const t=totals();
+  if((t[0]>=TARGET||t[1]>=TARGET)&&t[0]!==t[1]) return t[0]>t[1]?0:1;
+  return -1;
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const teamBtn=i=>`<span class="s ${i?'r':''}">${SUIT[i]}</span>${esc(S.names[i])}`;
+
+let prevT=null;
+function render(){
+  const N=S.names, t=totals();
+  $('na').value=N[0]; $('nb').value=N[1];
+  $('na').classList.toggle('long',N[0].length>8); $('nb').classList.toggle('long',N[1].length>8);
+  ['a','b'].forEach((s,i)=>{
+    const el=$('s'+s);
+    if(prevT&&prevT[i]!==t[i]){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+    el.textContent=t[i];
+    const left=Math.max(0,TARGET-t[i]);
+    $('r'+s).textContent=left?`باقي ${left}`:'وصل 152';
+    $('b'+s).style.width=Math.min(100,t[i]/TARGET*100)+'%';
+    $('w'+s).textContent=S.wins[i];
+    $('t'+s).classList.toggle('lead',t[i]>t[1-i]);
+  });
+  prevT=t;
+  setSeg('mode',E.mode);
+  ['buyer','side'].forEach(id=>{ const bs=document.querySelectorAll('#'+id+' button'); bs[0].innerHTML=teamBtn(0); bs[1].innerHTML=teamBtn(1); });
+  setSeg('buyer',String(E.buyer)); setSeg('side',String(E.side));
+  $('mult').innerHTML=MULTS[E.mode].map(([v,l])=>`<button data-v="${v}">${l}</button>`).join('');
+  setSeg('mult',String(E.mult));
+  $('ka').textContent='كبوت '+N[0]; $('kb').textContent='كبوت '+N[1];
+  $('ka').classList.toggle('on',E.kaboot===0); $('kb').classList.toggle('on',E.kaboot===1);
+  $('abn').disabled=E.kaboot>=0;
+  $('abn').placeholder=E.kaboot>=0?'كبوت':(E.mode==='sun'?'من 130':'من 162');
+  $('proj').innerHTML=[0,1].map(i=>`<div class="pcol ${i?'b':'a'}"><h4><span>${SUIT[i]}</span>${esc(N[i])}</h4>`+
+    PROJ[E.mode].map(([k,l])=>`<div class="st"><span>${l}</span><div class="c">
+      <button data-t="${i}" data-k="${k}" data-d="-1" aria-label="أنقص ${l}">−</button><em class="${E.proj[i][k]?'nz':''}">${E.proj[i][k]}</em>
+      <button data-t="${i}" data-k="${k}" data-d="1" aria-label="زد ${l}">+</button></div></div>`).join('')+`</div>`).join('');
+  $('mla').textContent=N[0]; $('mlb').textContent=N[1];
+  $('pla').textContent=N[0]; $('plb').textContent=N[1];
+  $('cla').textContent=N[0]; $('clb').textContent=N[1];
+  updatePreview();
+  const R=S.rounds;
+  $('hc').textContent=R.length?`${R.length} جولة`:'';
+  if(!R.length){ $('hist').innerHTML=`<div class="cols"><span>${esc(N[0])}</span><span>${esc(N[1])}</span></div><div class="empty">الورقة فاضية. سجّل أول جولة وتنكتب هنا.</div>`; return; }
+  $('hist').innerHTML=`<div class="cols"><span>${esc(N[0])}</span><span>${esc(N[1])}</span></div>`+
+    R.map((r,i)=>`<button class="ln" data-i="${i}" aria-label="الجولة ${i+1}"><span class="${r.pts[0]?'':'z'}">${r.pts[0]}</span><span class="b ${r.pts[1]?'':'z'}">${r.pts[1]}</span>${r.tag?`<i>${r.tag}</i>`:''}</button>`).join('')+
+    `<div class="sum"><span>${t[0]}</span><span>${t[1]}</span></div><div class="hint">اضغط على أي سطر لحذفه</div>`;
+}
+function updatePreview(){
+  const c=compute(), sun=E.mode==='sun';
+  $('ca').textContent=c.ready?c.res[0]:'–'; $('cb').textContent=c.ready?c.res[1]:'–';
+  $('ctr').disabled=!c.ready;
+  const a=$('ma').value, b=$('mb').value;
+  $('pa').textContent=a===''&&b===''?'–':(Number(a)||0); $('pb').textContent=a===''&&b===''?'–':(Number(b)||0);
+  $('save').disabled=(a===''&&b==='');
+  if(P&&(P.vals[0]!==a||P.vals[1]!==b)) P=null;
+  $('pend').textContent=P?`من حاسبة الأبناط: ${P.tag}`:'';
+  $('note').textContent=c.err||c.note; $('note').classList.toggle('err',!!c.err);
+  $('split').innerHTML=c.split
+    ?`<span>${esc(S.names[0])} <b>${c.split[0]}</b></span><span>${esc(S.names[1])} <b>${c.split[1]}</b></span>`
+    :`<span>اكتب أبناط فريق واحد، والباقي من ${sun?130:162} ينحسب للثاني</span>`;
+}
+function setSeg(id,v){ document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===v)); }
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1600); }
+const pick=(e)=>e.target.closest('button');
+
+$('mode').onclick=e=>{ const b=pick(e); if(!b||b.dataset.v===E.mode) return; E.mode=b.dataset.v; E.mult=1; E.proj=[blankProj(),blankProj()]; render(); };
+$('buyer').onclick=e=>{ const b=pick(e); if(!b) return; E.buyer=+b.dataset.v; render(); };
+$('side').onclick=e=>{ const b=pick(e); if(!b) return; E.side=+b.dataset.v; render(); };
+$('mult').onclick=e=>{ const b=pick(e); if(!b) return; E.mult=b.dataset.v==='q'?'q':+b.dataset.v; render(); };
+$('abn').oninput=e=>{ E.abn=e.target.value.trim(); updatePreview(); };
+document.querySelectorAll('.kab button').forEach(c=>c.onclick=()=>{ const k=+c.dataset.k; E.kaboot=E.kaboot===k?-1:k; render(); });
+$('proj').onclick=e=>{ const b=pick(e); if(!b) return; const i=+b.dataset.t,k=b.dataset.k;
+  E.proj[i][k]=Math.max(0,Math.min(k==='bal'?1:4,E.proj[i][k]+(+b.dataset.d))); render(); };
+$('ma').oninput=updatePreview; $('mb').oninput=updatePreview;
+['na','nb'].forEach((id,i)=>{ $(id).onchange=e=>{ S.names[i]=e.target.value.trim()||(i?'لهم':'لنا'); persist(); render(); }; });
+
+const TAGS={2:'دبل',3:'ثري',4:'فور',q:'قهوة'};
+$('ctr').onclick=()=>{
+  const c=compute(); if(!c.ready) return;
+  const tag=[E.mode==='sun'?'صن':'حكم',TAGS[E.mult],E.kaboot>=0?'كبوت':'',c.lost?'خسر':''].filter(Boolean).join('، ');
+  $('ma').value=c.res[0]; $('mb').value=c.res[1];
+  P={tag,qahwa:E.mult==='q',winner:c.winner,vals:[String(c.res[0]),String(c.res[1])]};
+  updatePreview(); $('calc').open=false;
+  $('ma').closest('.sect').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('انتقلت النتيجة، راجعها وسجّل');
+};
+$('save').onclick=()=>{
+  const a=$('ma').value, b=$('mb').value; if(a===''&&b==='') return;
+  const pts=[Math.max(0,Number(a)||0),Math.max(0,Number(b)||0)];
+  S.rounds.push({pts,mode:P?'calc':'man',tag:P?P.tag:'',qahwa:!!(P&&P.qahwa),winner:P?P.winner:-1});
+  persist(); resetEntry(true); render(); toast('انسجّلت الجولة');
+  $('ma').blur(); $('mb').blur();
+  checkWin();
+};
+function checkWin(){
+  const w=gameWinner(); if(w<0) return;
+  const t=totals();
+  $('wsuit').textContent=SUIT[w]; $('wsuit').style.color=w?'var(--red)':'var(--ink)';
+  $('wt').textContent=`${S.names[w]} كسب الصكّة`;
+  $('wp').textContent=S.rounds[S.rounds.length-1].qahwa?'خلصت بقهوة':`${t[0]} مقابل ${t[1]}`;
+  $('win').classList.add('show');
+}
+$('wnew').onclick=()=>{ const w=gameWinner(); if(w>=0) S.wins[w]++; S.rounds=[]; persist(); $('win').classList.remove('show'); resetEntry(false); prevT=null; render(); };
+$('wundo').onclick=()=>{ S.rounds.pop(); persist(); $('win').classList.remove('show'); render(); };
+$('undo').onclick=()=>{ if(!S.rounds.length) return toast('ما فيه جولات'); S.rounds.pop(); persist(); render(); toast('انحذفت آخر جولة'); };
+$('hist').onclick=e=>{ const b=e.target.closest('.ln'); if(!b) return; const i=+b.dataset.i, r=S.rounds[i];
+  ask(`حذف الجولة ${i+1}؟`,`${S.names[0]} ${r.pts[0]}، ${S.names[1]} ${r.pts[1]}`,()=>{ S.rounds.splice(i,1); persist(); render(); }); };
+
+let lp, lpFired=false;
+$('newg').onclick=()=>{ if(lpFired){ lpFired=false; return; }
+  ask('صكّة جديدة؟','تنمسح نتيجة الصكّة الحالية. لتصفير عدّاد الصكّات بعد، اضغط على الزر مطوّل.',()=>{ S.rounds=[]; persist(); resetEntry(false); prevT=null; render(); }); };
+$('newg').addEventListener('pointerdown',()=>{ lpFired=false; lp=setTimeout(()=>{ lpFired=true;
+  ask('تصفير كل شي؟','تنمسح الصكّة الحالية وعدّاد الصكّات.',()=>{ S.rounds=[]; S.wins=[0,0]; persist(); resetEntry(false); prevT=null; render(); }); },700); });
+['pointerup','pointerleave','pointercancel'].forEach(ev=>$('newg').addEventListener(ev,()=>clearTimeout(lp)));
+
+let cb;
+function ask(t,p,f){ $('ct').textContent=t; $('cp').textContent=p; cb=f; $('conf').classList.add('show'); }
+$('cno').onclick=()=>$('conf').classList.remove('show');
+$('cyes').onclick=()=>{ $('conf').classList.remove('show'); cb&&cb(); };
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m&&m.id==='conf') m.classList.remove('show'); }));
+
+
+// ---------- دق الولد ----------
+S.players = Array.isArray(S.players) ? S.players : [];
+const DQ_SUITS=[['♠',0],['♣',0],['♥',1],['♦',1]], DQ_RANKS=['7','8','9','10','Q','K','A'];
+let D=null;
+function rnd(n){ try{ const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0]%n; }catch(e){ return Math.floor(Math.random()*n); } }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function dqDeal(){
+  const n=S.players.length; if(n<4) return;
+  const jacks=DQ_SUITS.map(([s,r])=>({rank:'J',suit:s,red:r,jack:true}));
+  const others=[]; DQ_SUITS.forEach(([s,r])=>DQ_RANKS.forEach(k=>others.push({rank:k,suit:s,red:r,jack:false})));
+  D={cards:shuffle(jacks.concat(shuffle(others).slice(0,n-4))), open:new Array(n).fill(false), names:S.players.slice()};
+  $('dqg').innerHTML=D.cards.map((c,i)=>`<button class="fc" data-i="${i}" aria-label="ورقة ${esc(D.names[i])}">
+    <div class="fc-in"><div class="bk"></div>
+    <div class="fa ${c.red?'red':''} ${c.jack?'j':'no'}"><b>${c.rank}</b><i>${c.suit}</i>${c.jack?'<small>ولد</small>':''}</div></div>
+    <span>${esc(D.names[i])}</span></button>`).join('');
+  $('dqa').hidden=false; $('dqr').innerHTML='';
+  $('dqg').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function dqTeams(){
+  if(!D) return null;
+  const black=[],red=[];
+  D.cards.forEach((c,i)=>{ if(c.jack&&D.open[i]) (c.red?red:black).push(D.names[i]); });
+  return {black,red,done:black.length===2&&red.length===2};
+}
+function dqResult(){
+  const t=dqTeams(); if(!t||!t.done){ $('dqr').innerHTML=''; return; }
+  if($('dqr').innerHTML) return;
+  $('dqr').innerHTML=`<div class="dq-res"><div class="tm"><em>♠</em>${esc(t.black.join(' و '))}</div><div class="vs">ضد</div>
+    <div class="tm r"><em>♥</em>${esc(t.red.join(' و '))}</div><button id="dqok">اعتمد الفريقين</button></div>`;
+  $('dqok').onclick=()=>{ S.names=[t.black.join(' و '),t.red.join(' و ')]; persist(); $('dq').classList.remove('show'); render(); toast('اعتمدنا الفريقين'); };
+}
+function dqRender(){
+  $('dqp').innerHTML=S.players.map((p,i)=>`<span>${esc(p)}<button data-i="${i}" aria-label="شيل ${esc(p)}">×</button></span>`).join('');
+  const n=S.players.length;
+  $('dqgo').disabled=n<4;
+  $('dqc').textContent=n<4?`أضف ${4-n} ${4-n===1?'لاعب':'لاعبين'} على الأقل`:(n===4?'٤ لاعبين: كلهم يلعبون، الورق يحدد مين مع مين':`${n} لاعبين، ٤ منهم بيطلع لهم الولد`);
+}
+$('dqopen').onclick=()=>{ dqRender(); $('dq').classList.add('show'); };
+$('dqclose').onclick=()=>$('dq').classList.remove('show');
+$('dqf').onsubmit=e=>{ e.preventDefault(); const v=$('dqn').value.trim(); if(!v) return;
+  if(S.players.length>=12) return toast('الحد ١٢ لاعب');
+  if(S.players.includes(v)) return toast('الاسم موجود');
+  S.players.push(v); $('dqn').value=''; persist(); dqRender(); };
+$('dqp').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; S.players.splice(+b.dataset.i,1); persist(); dqRender(); };
+$('dqgo').onclick=dqDeal;
+$('dqagain').onclick=dqDeal;
+$('dqg').onclick=e=>{ const c=e.target.closest('.fc'); if(!c||!D) return; const i=+c.dataset.i; if(D.open[i]) return;
+  D.open[i]=true; c.classList.add('open'); setTimeout(dqResult,450); };
+$('dqall').onclick=()=>{ if(!D) return; document.querySelectorAll('#dqg .fc').forEach((c,i)=>setTimeout(()=>{ D.open[i]=true; c.classList.add('open'); },i*90));
+  setTimeout(dqResult,D.cards.length*90+450); };
+
+render();
+</script>
+</body>
+</html>

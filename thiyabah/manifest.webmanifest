@@ -1,0 +1,23 @@
+{
+ "name": "شقة الذيابة — حاسبة بلوت",
+ "short_name": "شقة الذيابة",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "dir": "rtl",
+ "lang": "ar",
+ "background_color": "#082419",
+ "theme_color": "#0E3B2C",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}
