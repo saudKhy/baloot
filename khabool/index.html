@@ -71,12 +71,14 @@ h1{font:700 clamp(40px,8vw,68px)/1.2 "IBM Plex Sans Arabic",sans-serif;margin:0;
 .prog{display:flex;gap:6px;margin:0 0 16px}
 .prog span{flex:1;height:6px;border-radius:3px;background:var(--line)}
 .prog span.d{background:var(--red)}.prog span.c{background:var(--redd);opacity:.45}
-.chips{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:18px}
 .chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:84px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;transition:transform .2s,background .2s}
 .chip .g{font:700 28px/1 "IBM Plex Sans Arabic",sans-serif;color:var(--red)}
 .chip[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff;transform:translateY(-4px);box-shadow:0 10px 18px -10px var(--red)}
 .chip[aria-pressed=true] .g{color:#fff}
-.chip.mt{min-height:46px;flex-direction:row;padding:0 18px;font-size:15px}
+.seg{display:flex;background:var(--ivory2);border-radius:999px;padding:4px;gap:4px;margin:0 0 16px}
+.seg button{flex:1;min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--mute);font-weight:700;cursor:pointer}
+.seg button[aria-pressed=true]{background:#fff;color:var(--red);box-shadow:0 3px 10px -4px rgba(0,0,0,.3)}
 .sgn{width:46px;height:46px;border-radius:50%;border:0;background:var(--ivory2);color:var(--ink);font-size:20px;font-weight:700;cursor:pointer;margin-inline-start:auto}
 .roster{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:18px;color:var(--onm);font-size:15px}
 .rc{display:inline-flex;border-radius:999px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.18);overflow:hidden}
@@ -128,7 +130,7 @@ td small{color:var(--mute)}
 .scroll{overflow-x:auto}
 footer{color:var(--onm);text-align:center;font-size:13px;opacity:.7;padding-bottom:28px}
 @media(max-width:600px){
-  .chips{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.chip{min-height:70px;font-size:11.5px}.chip .g{font-size:24px}
+  .chips{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.chip{min-height:72px;font-size:12px}.chip .g{font-size:24px}
   .row .lab{min-width:0;flex:1 1 auto}
   .pc{padding:30px 10px 26px}.ix b{font-size:20px}.ix i{font-size:17px}
   table{font-size:13px}td.n{font-size:17px}
@@ -193,7 +195,7 @@ if(!S||!S.trix||!S.hand)S=def();
 if(!Array.isArray(S.roster))S.roster=[...S.trix.names,...S.hand.names].filter((v,i,a)=>!/^لاعب /.test(v)&&a.indexOf(v)===i);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const blank=()=>({cnt:[0,0,0,0],q:[0,1,2,3].map(()=>({e:'',d:false,by:''})),k:{e:'',d:false,by:''},tx:['','','',''],out:'',hh:false,pts:[],nd:[],man:[]});
-let hint='',manual=false,T=blank(),ttype=null,confirmReset=false,prevT=null;
+let hint='',manual=S.manual!==false,T=blank(),ttype=null,confirmReset=false,prevT=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=n=>(n>0?'+':'')+n;
@@ -203,7 +205,8 @@ const names=()=>G().names.slice(0,np());
 const totals=()=>{const t=Array(np()).fill(0);G().rounds.forEach(r=>r.d.forEach((v,i)=>{if(i<t.length)t[i]+=v}));return t};
 const hiWins=()=>S.tab==='trix';
 const maxR=()=>S.tab==='trix'?20:S.hand.limit;
-const played=()=>S.tab==='trix'?S.trix.rounds.filter(r=>r.type!=='man').length:S.hand.rounds.length;
+const played=()=>G().rounds.length;
+const modeSw=()=>`<div class="seg" role="group" aria-label="طريقة الإدخال"><button data-act="mode" data-v="1" aria-pressed="${manual}">✎ يدوي</button><button data-act="mode" data-v="0" aria-pressed="${!manual}">تفصيلي</button></div>`;
 const isDef=(v,i)=>v===('لاعب '+'١٢٣٤٥'[i]);
 const red=i=>i%4===1||i%4===2;
 const opts=(sel,ph)=>`<option value="">${ph||'— مين؟ —'}</option>`+names().map((n,i)=>`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${esc(n)}</option>`).join('');
@@ -239,8 +242,9 @@ function trixEntry(){
   if(ttype&&used.includes(ttype))ttype=null;
   let h=`<h2>مملكة ${esc(nm[owner])}</h2><p class="sub">المملكة ${k+1} من ٤ · الجولة ${i+1} من ٢٠</p>
   <div class="prog">${Array.from({length:20},(_,j)=>`<span class="${j<i?'d':j===i?'c':''}"></span>`).join('')}</div>
-  <div class="chips">${TORDER.map(x=>`<button class="chip" data-act="type" data-v="${x}" aria-pressed="${ttype===x}" ${used.includes(x)?'disabled':''}><span class="g">${TG[x]}</span>${TN[x]}</button>`).join('')}<button class="chip" data-act="manual" aria-pressed="${manual}"><span class="g">✎</span>يدوي</button></div>`;
+  ${modeSw()}`;
   if(manual)return h+manualForm();
+  h+=`<div class="chips">${TORDER.map(x=>`<button class="chip" data-act="type" data-v="${x}" aria-pressed="${ttype===x}" ${used.includes(x)?'disabled':''}><span class="g">${TG[x]}</span>${TN[x]}</button>`).join('')}</div>`;
   if(!ttype)return h+`<p class="sub" style="margin:0">وش اختار ${esc(nm[owner])}؟</p>`;
   if(ttype==='lt'||ttype==='dn'){
     const u=ttype==='lt'?15:10,sum=T.cnt.reduce((a,b)=>a+b,0);
@@ -291,7 +295,7 @@ function handEntry(){
   const out=T.out===''?null:+T.out,m=T.hh?2:1;
   let h=`<h2>الجولة ${i+1} من ${H.limit}</h2><p class="sub">الأقل نقاط هو الفايز</p>
   <div class="prog">${Array.from({length:H.limit},(_,j)=>`<span class="${j<i?'d':j===i?'c':''}"></span>`).join('')}</div>`;
-  h+=`<div class="bar" style="margin:0 0 12px"><button class="chip mt" data-act="manual" aria-pressed="${manual}">✎ إدخال يدوي</button></div>`;
+  h+=modeSw();
   if(manual)return h+manualForm();
   h+=`<div class="row" style="margin-bottom:8px;border-color:var(--red)"><span class="lab">مين نزل؟</span><select data-f="out" aria-label="مين نزل">${opts(T.out)}</select>
   <label class="ck"><input type="checkbox" data-f="hh" ${T.hh?'checked':''}> نزل هند (كل شي دبل)</label></div><div class="rows">`;
@@ -309,7 +313,7 @@ function handEntry(){
 function manualForm(){
   const c=calcMan();
   return `<div class="rows">${names().map((n,j)=>`<div class="row"><span class="lab">${esc(n)}</span><button class="sgn" data-act="neg" data-i="${j}" aria-label="موجب أو سالب">±</button><input type="text" inputmode="numeric" dir="ltr" data-f="man.${j}" data-live="m" id="mi${j}" value="${esc(T.man[j]??'')}" placeholder="0" aria-label="نقاط ${esc(n)}" style="width:110px;min-height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--ivory);text-align:center;font-weight:700"></div>`).join('')}</div>
-  <p class="note">اكتب نقاط كل لاعب بهالجولة، واضغط ± عشان تخليها سالب.${S.tab==='trix'?' الجولة اليدوية ما تنحسب من الممالك.':''}</p>
+  <p class="note">اكتب نقاط كل لاعب بهالجولة، واضغط ± عشان تخليها سالب.</p>
   <div class="bar"><button class="go" id="msave" data-act="save" ${c.err?'disabled':''}>سجّل الجولة</button><span class="err" id="merr">${c.err||''}</span></div>`;
 }
 function calcMan(){
@@ -351,7 +355,7 @@ function settings(){
 function hist(){
   const g=G(),nm=names();
   if(!g.rounds.length){$('hist').innerHTML='<p class="empty">ما فيه جولات للحين — أول جولة تسجلها تطلع هنا.</p>';return}
-  const rows=g.rounds.map((r,i)=>({r,i})).reverse().map(({r,i})=>`<tr><td>${i+1}</td><td>${r.type==='man'||r.man?'يدوي':S.tab==='trix'?TN[r.type]+` <small>(${esc(nm[r.k%4])})</small>`:(r.hh?'هند':'نزل')+` <small>${esc(nm[r.out]||'')}</small>`}</td>${r.d.slice(0,nm.length).map(v=>`<td class="n ${v<0?'neg':v>0?'pos':''}" dir="ltr">${v?fmt(v):'0'}</td>`).join('')}<td><button class="x" data-act="del" data-i="${i}" aria-label="احذف الجولة ${i+1}">×</button></td></tr>`).join('');
+  const rows=g.rounds.map((r,i)=>({r,i})).reverse().map(({r,i})=>`<tr><td>${i+1}</td><td>${r.man?'يدوي':r.type==='man'?`يدوي <small>(${esc(nm[(r.k??0)%4])})</small>`:S.tab==='trix'?TN[r.type]+` <small>(${esc(nm[r.k%4])})</small>`:(r.hh?'هند':'نزل')+` <small>${esc(nm[r.out]||'')}</small>`}</td>${r.d.slice(0,nm.length).map(v=>`<td class="n ${v<0?'neg':v>0?'pos':''}" dir="ltr">${v?fmt(v):'0'}</td>`).join('')}<td><button class="x" data-act="del" data-i="${i}" aria-label="احذف الجولة ${i+1}">×</button></td></tr>`).join('');
   $('hist').innerHTML=`<table><thead><tr><th>#</th><th>الجولة</th>${nm.map(n=>`<th style="text-align:end">${esc(n)}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -367,16 +371,16 @@ document.addEventListener('click',e=>{
   const a=b.dataset.act;
   if(a==='neg'){const j=+b.dataset.i,v=String(T.man[j]??'');T.man[j]=v.startsWith('-')?v.slice(1):'-'+v;const el=$('mi'+j);el.value=T.man[j];manLive();return}
   if(a!=='reset')confirmReset=false;
-  if(a==='manual'){manual=!manual;ttype=null;T=blank()}
+  if(a==='mode'){manual=b.dataset.v==='1';S.manual=manual;ttype=null;T=blank()}
   else if(a==='pick'){const v=S.roster[+b.dataset.v],nm=G().names,on=names().indexOf(v);if(on>=0)nm[on]='لاعب '+'١٢٣٤٥'[on];else{const f=names().findIndex((x,i)=>isDef(x,i));if(f>=0)nm[f]=v;else hint='كل الأماكن فيها أسماء — اضغط اسم جالس عشان تشيله أول'}}
   else if(a==='unroster'){S.roster.splice(+b.dataset.v,1)}
   else if(a==='clearseats'){G().names=G().names.map((x,i)=>'لاعب '+'١٢٣٤٥'[i])}
-  else if(a==='tab'){manual=false;if(S.tab!==b.dataset.v){S.tab=b.dataset.v;prevT=null}T=blank();ttype=null}
-  else if(a==='type'){manual=false;ttype=b.dataset.v;T=blank()}
+  else if(a==='tab'){if(S.tab!==b.dataset.v){S.tab=b.dataset.v;prevT=null}T=blank();ttype=null}
+  else if(a==='type'){ttype=b.dataset.v;T=blank()}
   else if(a==='inc'||a==='dec'){const j=+b.dataset.i,s=T.cnt.reduce((x,y)=>x+y,0);if(a==='inc'&&s<13)T.cnt[j]++;if(a==='dec'&&T.cnt[j]>0)T.cnt[j]--}
   else if(a==='save'){
     const c=manual?calcMan():S.tab==='trix'?calcTrix():calcHand();if(c.err)return;
-    if(manual){G().rounds.push(S.tab==='trix'?{type:'man',d:c.d}:{man:true,d:c.d})}
+    if(manual){G().rounds.push(S.tab==='trix'?{type:'man',k:Math.floor(S.trix.rounds.length/5),d:c.d}:{man:true,d:c.d})}
     else if(S.tab==='trix'){S.trix.rounds.push({type:ttype,k:Math.floor(S.trix.rounds.length/5),d:c.d});ttype=null}
     else S.hand.rounds.push({out:+T.out,hh:T.hh,d:c.d});
     T=blank();
