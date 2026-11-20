@@ -71,11 +71,18 @@ h1{font:700 clamp(40px,8vw,68px)/1.2 "IBM Plex Sans Arabic",sans-serif;margin:0;
 .prog{display:flex;gap:6px;margin:0 0 16px}
 .prog span{flex:1;height:6px;border-radius:3px;background:var(--line)}
 .prog span.d{background:var(--red)}.prog span.c{background:var(--redd);opacity:.45}
-.chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.chips{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:18px}
 .chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:84px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;transition:transform .2s,background .2s}
 .chip .g{font:700 28px/1 "IBM Plex Sans Arabic",sans-serif;color:var(--red)}
 .chip[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff;transform:translateY(-4px);box-shadow:0 10px 18px -10px var(--red)}
 .chip[aria-pressed=true] .g{color:#fff}
+.chip.mt{min-height:46px;flex-direction:row;padding:0 18px;font-size:15px}
+.sgn{width:46px;height:46px;border-radius:50%;border:0;background:var(--ivory2);color:var(--ink);font-size:20px;font-weight:700;cursor:pointer;margin-inline-start:auto}
+.roster{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:18px;color:var(--onm);font-size:15px}
+.rc{display:inline-flex;border-radius:999px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.18);overflow:hidden}
+.rc button{border:0;background:transparent;color:var(--on);min-height:42px;padding-inline:14px 6px;font-weight:600;cursor:pointer}
+.rc button+button{padding-inline:8px 12px;color:var(--onm);font-size:18px}
+.rc.on{background:var(--ivory);border-color:var(--ivory)}.rc.on button{color:var(--red)}
 .chip:disabled{opacity:.3;cursor:not-allowed;background:var(--ivory2)}
 .rows{display:grid;gap:8px}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px}
@@ -121,7 +128,7 @@ td small{color:var(--mute)}
 .scroll{overflow-x:auto}
 footer{color:var(--onm);text-align:center;font-size:13px;opacity:.7;padding-bottom:28px}
 @media(max-width:600px){
-  .chips{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.chip{min-height:72px;font-size:12px}.chip .g{font-size:24px}
+  .chips{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.chip{min-height:70px;font-size:11.5px}.chip .g{font-size:24px}
   .row .lab{min-width:0;flex:1 1 auto}
   .pc{padding:30px 10px 26px}.ix b{font-size:20px}.ix i{font-size:17px}
   table{font-size:13px}td.n{font-size:17px}
@@ -156,6 +163,7 @@ footer{color:var(--onm);text-align:center;font-size:13px;opacity:.7;padding-bott
   <div id="win"></div>
   <div class="board" id="board"></div>
   <div id="teams"></div>
+  <div id="roster-row"></div><datalist id="roster"></datalist>
 </div></section>
 
 <section class="band" style="padding-top:4px"><div class="wrap">
@@ -182,9 +190,10 @@ const def=()=>({tab:'trix',
 let S;
 try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.trix||!S.hand)S=def();
+if(!Array.isArray(S.roster))S.roster=[...S.trix.names,...S.hand.names].filter((v,i,a)=>!/^لاعب /.test(v)&&a.indexOf(v)===i);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
-const blank=()=>({cnt:[0,0,0,0],q:[0,1,2,3].map(()=>({e:'',d:false,by:''})),k:{e:'',d:false,by:''},tx:['','','',''],out:'',hh:false,pts:[],nd:[]});
-let T=blank(),ttype=null,confirmReset=false,prevT=null;
+const blank=()=>({cnt:[0,0,0,0],q:[0,1,2,3].map(()=>({e:'',d:false,by:''})),k:{e:'',d:false,by:''},tx:['','','',''],out:'',hh:false,pts:[],nd:[],man:[]});
+let hint='',manual=false,T=blank(),ttype=null,confirmReset=false,prevT=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=n=>(n>0?'+':'')+n;
@@ -194,6 +203,8 @@ const names=()=>G().names.slice(0,np());
 const totals=()=>{const t=Array(np()).fill(0);G().rounds.forEach(r=>r.d.forEach((v,i)=>{if(i<t.length)t[i]+=v}));return t};
 const hiWins=()=>S.tab==='trix';
 const maxR=()=>S.tab==='trix'?20:S.hand.limit;
+const played=()=>S.tab==='trix'?S.trix.rounds.filter(r=>r.type!=='man').length:S.hand.rounds.length;
+const isDef=(v,i)=>v===('لاعب '+'١٢٣٤٥'[i]);
 const red=i=>i%4===1||i%4===2;
 const opts=(sel,ph)=>`<option value="">${ph||'— مين؟ —'}</option>`+names().map((n,i)=>`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${esc(n)}</option>`).join('');
 
@@ -205,7 +216,7 @@ function board(){
     const ix=`<b>${RK[i]}</b><i>${SU[i%4]}</i>`;
     return `<div class="pc ${lead?'lead':''} ${bump?'bump':''}">${lead?`<span class="crown">${CROWN}</span>`:''}
       <span class="ix tl ${red(i)?'r':''}">${ix}</span><span class="ix br ${red(i)?'r':''}">${ix}</span>
-      <input data-nm="${i}" value="${esc(n)}" aria-label="اسم اللاعب ${i+1}">
+      <input data-nm="${i}" list="roster" autocomplete="off" value="${esc(n)}" aria-label="اسم اللاعب ${i+1}">
       <b class="t ${t[i]<0?'neg':''}" dir="ltr">${t[i]}</b>
       <small>${rk?(lead?'المتصدر':'المركز '+rk):'جاهز'}</small></div>`}).join('');
   prevT=t;
@@ -213,7 +224,7 @@ function board(){
     const nm=names(),a=t[0]+t[2],b=t[1]+t[3],la=has&&(hiWins()?a>b:a<b),lb=has&&(hiWins()?b>a:b<a);
     $('teams').innerHTML=`<div class="teams"><div class="${la?'lead':''}"><span>${esc(nm[0])} + ${esc(nm[2])}</span><b dir="ltr">${a}</b></div><div class="${lb?'lead':''}"><span>${esc(nm[1])} + ${esc(nm[3])}</span><b dir="ltr">${b}</b></div></div>`;
   }else $('teams').innerHTML='';
-  if(g.rounds.length>=maxR()){
+  if(played()>=maxR()){
     let w;
     if(g.teams&&np()===4){const a=t[0]+t[2],b=t[1]+t[3],nm=names();w=a===b?'تعادل بين الفريقين':`فاز ${(hiWins()?a>b:a<b)?nm[0]+' و '+nm[2]:nm[1]+' و '+nm[3]}`}
     else{const ws=names().filter((n,i)=>t[i]===best);w=(ws.length>1?'تعادل: ':'الفايز: ')+ws.join(' و ')}
@@ -222,13 +233,14 @@ function board(){
 }
 
 function trixEntry(){
-  const R=S.trix.rounds,i=R.length,nm=names();
+  const R=S.trix.rounds,i=played(),nm=names();
   if(i>=20)return `<h2>خلصت الممالك الأربع</h2><p class="sub">ابدأ لعبة جديدة من تحت.</p>`;
   const k=Math.floor(i/5),owner=k%4,used=R.filter(r=>r.k===k).map(r=>r.type);
   if(ttype&&used.includes(ttype))ttype=null;
   let h=`<h2>مملكة ${esc(nm[owner])}</h2><p class="sub">المملكة ${k+1} من ٤ · الجولة ${i+1} من ٢٠</p>
   <div class="prog">${Array.from({length:20},(_,j)=>`<span class="${j<i?'d':j===i?'c':''}"></span>`).join('')}</div>
-  <div class="chips">${TORDER.map(x=>`<button class="chip" data-act="type" data-v="${x}" aria-pressed="${ttype===x}" ${used.includes(x)?'disabled':''}><span class="g">${TG[x]}</span>${TN[x]}</button>`).join('')}</div>`;
+  <div class="chips">${TORDER.map(x=>`<button class="chip" data-act="type" data-v="${x}" aria-pressed="${ttype===x}" ${used.includes(x)?'disabled':''}><span class="g">${TG[x]}</span>${TN[x]}</button>`).join('')}<button class="chip" data-act="manual" aria-pressed="${manual}"><span class="g">✎</span>يدوي</button></div>`;
+  if(manual)return h+manualForm();
   if(!ttype)return h+`<p class="sub" style="margin:0">وش اختار ${esc(nm[owner])}؟</p>`;
   if(ttype==='lt'||ttype==='dn'){
     const u=ttype==='lt'?15:10,sum=T.cnt.reduce((a,b)=>a+b,0);
@@ -278,8 +290,10 @@ function handEntry(){
   if(i>=H.limit)return `<h2>خلصت الجولات</h2><p class="sub">زد عدد الجولات من تحت أو ابدأ لعبة جديدة.</p>`;
   const out=T.out===''?null:+T.out,m=T.hh?2:1;
   let h=`<h2>الجولة ${i+1} من ${H.limit}</h2><p class="sub">الأقل نقاط هو الفايز</p>
-  <div class="prog">${Array.from({length:H.limit},(_,j)=>`<span class="${j<i?'d':j===i?'c':''}"></span>`).join('')}</div>
-  <div class="row" style="margin-bottom:8px;border-color:var(--red)"><span class="lab">مين نزل؟</span><select data-f="out" aria-label="مين نزل">${opts(T.out)}</select>
+  <div class="prog">${Array.from({length:H.limit},(_,j)=>`<span class="${j<i?'d':j===i?'c':''}"></span>`).join('')}</div>`;
+  h+=`<div class="bar" style="margin:0 0 12px"><button class="chip mt" data-act="manual" aria-pressed="${manual}">✎ إدخال يدوي</button></div>`;
+  if(manual)return h+manualForm();
+  h+=`<div class="row" style="margin-bottom:8px;border-color:var(--red)"><span class="lab">مين نزل؟</span><select data-f="out" aria-label="مين نزل">${opts(T.out)}</select>
   <label class="ck"><input type="checkbox" data-f="hh" ${T.hh?'checked':''}> نزل هند (كل شي دبل)</label></div><div class="rows">`;
   h+=nm.map((n,j)=>{
     if(j===out)return `<div class="row"><span class="lab">${esc(n)}</span><span style="color:var(--mute);font-weight:600">${T.hh?'نزل هند':'نزل'}</span><span class="pts p end" dir="ltr">${-30*m}</span></div>`;
@@ -292,6 +306,19 @@ function handEntry(){
   return h+`<p class="note">النازل −30 (بالهند −60). الباقين يحسبون ورقهم، واللي ما نزل أبد +100، وبالهند كل شي يتدبّل.</p>
   <div class="bar"><button class="go" id="hsave" data-act="save" ${c.err?'disabled':''}>سجّل الجولة</button><span class="err" id="herr">${c.err||''}</span></div>`;
 }
+function manualForm(){
+  const c=calcMan();
+  return `<div class="rows">${names().map((n,j)=>`<div class="row"><span class="lab">${esc(n)}</span><button class="sgn" data-act="neg" data-i="${j}" aria-label="موجب أو سالب">±</button><input type="text" inputmode="numeric" dir="ltr" data-f="man.${j}" data-live="m" id="mi${j}" value="${esc(T.man[j]??'')}" placeholder="0" aria-label="نقاط ${esc(n)}" style="width:110px;min-height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--ivory);text-align:center;font-weight:700"></div>`).join('')}</div>
+  <p class="note">اكتب نقاط كل لاعب بهالجولة، واضغط ± عشان تخليها سالب.${S.tab==='trix'?' الجولة اليدوية ما تنحسب من الممالك.':''}</p>
+  <div class="bar"><button class="go" id="msave" data-act="save" ${c.err?'disabled':''}>سجّل الجولة</button><span class="err" id="merr">${c.err||''}</span></div>`;
+}
+function calcMan(){
+  const d=[];
+  for(let j=0;j<np();j++){const v=String(T.man[j]??'').replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace('−','-');if(v!==''&&v!=='-'&&isNaN(+v))return{err:'أرقام بس'};d[j]=Math.round(+v||0)}
+  if(d.every(x=>x===0))return{err:'اكتب نقاط لاعب واحد على الأقل'};
+  return{d};
+}
+const manLive=()=>{const c=calcMan();$('msave').disabled=!!c.err;$('merr').textContent=c.err||''};
 function calcHand(){
   if(T.out==='')return{err:'حدد مين نزل'};
   const out=+T.out,m=T.hh?2:1,d=[];
@@ -304,6 +331,11 @@ function calcHand(){
   return{d};
 }
 
+function roster(){
+  $('roster').innerHTML=S.roster.map(n=>`<option value="${esc(n)}">`).join('');
+  const seated=names();
+  $('roster-row').innerHTML=`<div class="roster"><span>الشلة:</span>${S.roster.length?S.roster.map((n,i)=>`<span class="rc ${seated.includes(n)?'on':''}"><button data-act="pick" data-v="${i}">${esc(n)}</button><button data-act="unroster" data-v="${i}" aria-label="احذف ${esc(n)} من الشلة">×</button></span>`).join(''):'<span>اكتب اسم أي لاعب على ورقته وينحفظ هنا</span>'}${S.roster.length?'<button class="ghost" data-act="clearseats">فضّي الأماكن</button>':''}${hint?`<span style="flex-basis:100%">${hint}</span>`:''}</div>`;hint='';
+}
 function settings(){
   const g=G();let h='';
   if(S.tab==='hand'){
@@ -319,27 +351,33 @@ function settings(){
 function hist(){
   const g=G(),nm=names();
   if(!g.rounds.length){$('hist').innerHTML='<p class="empty">ما فيه جولات للحين — أول جولة تسجلها تطلع هنا.</p>';return}
-  const rows=g.rounds.map((r,i)=>({r,i})).reverse().map(({r,i})=>`<tr><td>${i+1}</td><td>${S.tab==='trix'?TN[r.type]+` <small>(${esc(nm[r.k%4])})</small>`:(r.hh?'هند':'نزل')+` <small>${esc(nm[r.out]||'')}</small>`}</td>${r.d.slice(0,nm.length).map(v=>`<td class="n ${v<0?'neg':v>0?'pos':''}" dir="ltr">${v?fmt(v):'0'}</td>`).join('')}<td><button class="x" data-act="del" data-i="${i}" aria-label="احذف الجولة ${i+1}">×</button></td></tr>`).join('');
+  const rows=g.rounds.map((r,i)=>({r,i})).reverse().map(({r,i})=>`<tr><td>${i+1}</td><td>${r.type==='man'||r.man?'يدوي':S.tab==='trix'?TN[r.type]+` <small>(${esc(nm[r.k%4])})</small>`:(r.hh?'هند':'نزل')+` <small>${esc(nm[r.out]||'')}</small>`}</td>${r.d.slice(0,nm.length).map(v=>`<td class="n ${v<0?'neg':v>0?'pos':''}" dir="ltr">${v?fmt(v):'0'}</td>`).join('')}<td><button class="x" data-act="del" data-i="${i}" aria-label="احذف الجولة ${i+1}">×</button></td></tr>`).join('');
   $('hist').innerHTML=`<table><thead><tr><th>#</th><th>الجولة</th>${nm.map(n=>`<th style="text-align:end">${esc(n)}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function render(){
   $('tab-trix').setAttribute('aria-selected',S.tab==='trix');
   $('tab-hand').setAttribute('aria-selected',S.tab==='hand');
-  board();$('entry').innerHTML=S.tab==='trix'?trixEntry():handEntry();settings();hist();
+  board();roster();$('entry').innerHTML=S.tab==='trix'?trixEntry():handEntry();settings();hist();
 }
 const setPath=(o,p,v)=>{const k=p.split('.');let x=o;for(let i=0;i<k.length-1;i++)x=x[k[i]];x[k[k.length-1]]=v};
 
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   const a=b.dataset.act;
+  if(a==='neg'){const j=+b.dataset.i,v=String(T.man[j]??'');T.man[j]=v.startsWith('-')?v.slice(1):'-'+v;const el=$('mi'+j);el.value=T.man[j];manLive();return}
   if(a!=='reset')confirmReset=false;
-  if(a==='tab'){if(S.tab!==b.dataset.v){S.tab=b.dataset.v;prevT=null}T=blank();ttype=null}
-  else if(a==='type'){ttype=b.dataset.v;T=blank()}
+  if(a==='manual'){manual=!manual;ttype=null;T=blank()}
+  else if(a==='pick'){const v=S.roster[+b.dataset.v],nm=G().names,on=names().indexOf(v);if(on>=0)nm[on]='لاعب '+'١٢٣٤٥'[on];else{const f=names().findIndex((x,i)=>isDef(x,i));if(f>=0)nm[f]=v;else hint='كل الأماكن فيها أسماء — اضغط اسم جالس عشان تشيله أول'}}
+  else if(a==='unroster'){S.roster.splice(+b.dataset.v,1)}
+  else if(a==='clearseats'){G().names=G().names.map((x,i)=>'لاعب '+'١٢٣٤٥'[i])}
+  else if(a==='tab'){manual=false;if(S.tab!==b.dataset.v){S.tab=b.dataset.v;prevT=null}T=blank();ttype=null}
+  else if(a==='type'){manual=false;ttype=b.dataset.v;T=blank()}
   else if(a==='inc'||a==='dec'){const j=+b.dataset.i,s=T.cnt.reduce((x,y)=>x+y,0);if(a==='inc'&&s<13)T.cnt[j]++;if(a==='dec'&&T.cnt[j]>0)T.cnt[j]--}
   else if(a==='save'){
-    const c=S.tab==='trix'?calcTrix():calcHand();if(c.err)return;
-    if(S.tab==='trix'){S.trix.rounds.push({type:ttype,k:Math.floor(S.trix.rounds.length/5),d:c.d});ttype=null}
+    const c=manual?calcMan():S.tab==='trix'?calcTrix():calcHand();if(c.err)return;
+    if(manual){G().rounds.push(S.tab==='trix'?{type:'man',d:c.d}:{man:true,d:c.d})}
+    else if(S.tab==='trix'){S.trix.rounds.push({type:ttype,k:Math.floor(S.trix.rounds.length/5),d:c.d});ttype=null}
     else S.hand.rounds.push({out:+T.out,hh:T.hh,d:c.d});
     T=blank();
   }
@@ -351,7 +389,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const el=e.target;
   if(el.dataset.live)return;
-  if(el.dataset.nm!==undefined){G().names[+el.dataset.nm]=el.value.trim()||('لاعب '+(+el.dataset.nm+1));save();render();return}
+  if(el.dataset.nm!==undefined){const j=+el.dataset.nm,v=el.value.trim();G().names[j]=v||('لاعب '+'١٢٣٤٥'[j]);if(v&&!isDef(v,j)&&!/^لاعب /.test(v)&&!S.roster.includes(v))S.roster.push(v);save();render();return}
   if(el.id==='sn'){S.hand.n=+el.value;T=blank();prevT=null}
   else if(el.id==='sl')S.hand.limit=+el.value;
   else if(el.id==='steams')G().teams=el.checked;
@@ -362,6 +400,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('input',e=>{
   const el=e.target;if(!el.dataset.live)return;
   setPath(T,el.dataset.f,el.value);
+  if(el.dataset.live==='m'){manLive();return}
   const j=+el.dataset.f.split('.')[1],p=$('hp'+j);if(p)p.textContent='+'+(+el.value||0)*(T.hh?2:1);
   const c=calcHand();$('hsave').disabled=!!c.err;$('herr').textContent=c.err||'';
 });
