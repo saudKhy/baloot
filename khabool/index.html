@@ -12,12 +12,12 @@
 <meta name="theme-color" content="#3a0912">
 <title>استراحة الخبول</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 /* VOICE: سهرة استراحة — دافية، فيها لعب، والأرقام هي البطل
    IDEA: طاولة ورق مخملية عنابية، عليها أوراق اللاعبين وورقة الحساب
    PICTURE: مروحة أوراق مرسومة بالهيدر، وكل لاعب ورقة لعب حقيقية بزواياها ومجموعه بالنص
-   COLOUR and TYPE: مخمل عنابي غامق، أوراق عاجية، أحمر الورق للتمييز؛ Lalezar للأرقام والعناوين، Plex Arabic للنص
+   COLOUR and TYPE: مخمل عنابي غامق، أوراق عاجية، أحمر الورق للتمييز؛ IBM Plex Sans Arabic لكل شي
    LAYOUT: هيدر بالمروحة، صف الأوراق، ورقة الإدخال، سجل الجولات على ورق مسطّر */
 :root{color-scheme:dark;--felt:#3a0912;--felt2:#22050b;--ivory:#fbf6ee;--ivory2:#f1e8db;--ink:#1c0e11;--red:#cf1430;--redd:#a30d24;--rose:#f6c9d1;--mute:#7a6669;--line:#e4d7c8;--on:#fbeef0;--onm:#d9aeb6}
 *{box-sizing:border-box;min-width:0}
@@ -32,7 +32,7 @@ button,select,input{font:inherit;font-size:16px}
 
 header.band{padding-top:max(26px,calc(env(safe-area-inset-top) + 14px));padding-bottom:8px}
 .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px}
-h1{font:400 clamp(44px,9vw,76px)/1 Lalezar,sans-serif;margin:0;color:#fff;text-shadow:0 3px 0 var(--redd),0 10px 30px rgba(0,0,0,.4);text-wrap:balance}
+h1{font:700 clamp(40px,8vw,68px)/1.2 "IBM Plex Sans Arabic",sans-serif;margin:0;color:#fff;text-shadow:0 3px 0 var(--redd),0 10px 30px rgba(0,0,0,.4);text-wrap:balance}
 .tag{color:var(--onm);margin:6px 0 16px;font-size:16px}
 .fan{width:clamp(130px,26vw,230px);height:auto;filter:drop-shadow(0 14px 18px rgba(0,0,0,.45))}
 .fan .c{transform-box:view-box;transform-origin:110px 190px;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
@@ -45,12 +45,12 @@ h1{font:400 clamp(44px,9vw,76px)/1 Lalezar,sans-serif;margin:0;color:#fff;text-s
 .pc::after{content:"";position:absolute;inset:8px;border:1.5px solid var(--line);border-radius:12px;pointer-events:none}
 .pc.lead{transform:translateY(-10px) rotate(-1.5deg);box-shadow:0 0 0 3px var(--red),0 26px 40px -14px rgba(207,20,48,.7)}
 .ix{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1;font-weight:700;z-index:1}
-.ix b{font:400 24px Lalezar,sans-serif}.ix i{font-style:normal;font-size:20px;margin-top:2px}
+.ix b{font:700 24px "IBM Plex Sans Arabic",sans-serif}.ix i{font-style:normal;font-size:20px;margin-top:2px}
 .ix.tl{top:14px;inset-inline-start:16px}.ix.br{bottom:14px;inset-inline-end:16px;transform:rotate(180deg)}
 .r{color:var(--red)}
 .pc input{position:relative;z-index:2;width:85%;text-align:center;border:0;border-radius:8px;background:transparent;color:var(--ink);font-weight:700;font-size:17px;padding:4px;min-height:38px}
 .pc input:hover,.pc input:focus{background:rgba(0,0,0,.05)}
-.pc .t{display:block;font:400 clamp(46px,8.5vw,68px)/1 Lalezar,sans-serif;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.pc .t{display:block;font:700 clamp(46px,8.5vw,68px)/1 "IBM Plex Sans Arabic",sans-serif;margin:4px 0 2px;font-variant-numeric:tabular-nums}
 .pc .t.neg{color:var(--red)}
 .pc small{position:relative;z-index:2;font-size:14px;color:var(--mute);font-weight:600}
 .pc .crown{position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:44px;z-index:3}
@@ -59,21 +59,21 @@ h1{font:400 clamp(44px,9vw,76px)/1 Lalezar,sans-serif;margin:0;color:#fff;text-s
 .teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
 .teams div{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .teams div.lead{border-color:var(--rose)}
-.teams b{font:400 32px Lalezar,sans-serif;color:#fff}
+.teams b{font:700 32px "IBM Plex Sans Arabic",sans-serif;color:#fff}
 
 .win{display:flex;align-items:center;gap:14px;background:var(--ivory);color:var(--ink);border-radius:18px;padding:14px 18px;margin-bottom:8px;box-shadow:0 0 0 3px var(--red),0 20px 40px -18px #000}
 .win svg{width:48px;flex:none}
-.win b{font:400 26px/1.2 Lalezar,sans-serif;display:block}
+.win b{font:700 26px/1.2 "IBM Plex Sans Arabic",sans-serif;display:block}
 
 .sheet{color-scheme:light;background:var(--ivory);color:var(--ink);border-radius:22px;padding:clamp(18px,3vw,30px);box-shadow:0 30px 50px -24px rgba(0,0,0,.7)}
-.sheet h2{font:400 clamp(28px,4.5vw,36px)/1.1 Lalezar,sans-serif;margin:0}
+.sheet h2{font:700 clamp(28px,4.5vw,36px)/1.1 "IBM Plex Sans Arabic",sans-serif;margin:0}
 .sub{color:var(--mute);margin:4px 0 16px;font-size:15px}
 .prog{display:flex;gap:6px;margin:0 0 16px}
 .prog span{flex:1;height:6px;border-radius:3px;background:var(--line)}
 .prog span.d{background:var(--red)}.prog span.c{background:var(--redd);opacity:.45}
 .chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:18px}
 .chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:84px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;transition:transform .2s,background .2s}
-.chip .g{font:400 28px/1 Lalezar,sans-serif;color:var(--red)}
+.chip .g{font:700 28px/1 "IBM Plex Sans Arabic",sans-serif;color:var(--red)}
 .chip[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff;transform:translateY(-4px);box-shadow:0 10px 18px -10px var(--red)}
 .chip[aria-pressed=true] .g{color:#fff}
 .chip:disabled{opacity:.3;cursor:not-allowed;background:var(--ivory2)}
@@ -88,8 +88,8 @@ label.ck input{width:22px;height:22px;accent-color:var(--red)}
 .step{display:inline-flex;align-items:center;gap:6px;margin-inline-start:auto}
 .step button{width:46px;height:46px;border-radius:50%;border:0;background:var(--ivory2);color:var(--ink);font-size:24px;cursor:pointer}
 .step button.p{background:var(--red);color:#fff}
-.step output{min-width:36px;text-align:center;font:400 30px Lalezar,sans-serif}
-.pts{font:400 22px Lalezar,sans-serif;color:var(--red);white-space:nowrap;min-width:52px;text-align:center}
+.step output{min-width:36px;text-align:center;font:700 30px "IBM Plex Sans Arabic",sans-serif}
+.pts{font:700 22px "IBM Plex Sans Arabic",sans-serif;color:var(--red);white-space:nowrap;min-width:52px;text-align:center}
 .pts.p{color:#0f6b3a}
 .row .pts.end{margin-inline-start:auto}
 .bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:18px}
@@ -107,12 +107,12 @@ label.ck input{width:22px;height:22px;accent-color:var(--red)}
 .ghost.warn{background:var(--red);border-color:var(--red)}
 
 .log{color-scheme:light;background:var(--ivory);color:var(--ink);border-radius:22px;padding:clamp(16px,3vw,26px)}
-.log h2{font:400 30px/1.1 Lalezar,sans-serif;margin:0 0 6px}
+.log h2{font:700 30px/1.1 "IBM Plex Sans Arabic",sans-serif;margin:0 0 6px}
 table{width:100%;border-collapse:collapse;font-size:15px}
 th,td{padding:10px 8px;text-align:start}
 th{color:var(--mute);font-weight:600;font-size:14px}
 tbody tr{border-top:1px solid var(--line)}
-td.n{text-align:end;white-space:nowrap;font:400 20px Lalezar,sans-serif}
+td.n{text-align:end;white-space:nowrap;font:700 20px "IBM Plex Sans Arabic",sans-serif}
 td.n.neg{color:var(--red)}td.n.pos{color:#0f6b3a}
 td small{color:var(--mute)}
 .x{border:0;background:transparent;color:var(--mute);font-size:22px;width:44px;height:44px;cursor:pointer;border-radius:50%}
@@ -145,10 +145,10 @@ footer{color:var(--onm);text-align:center;font-size:13px;opacity:.7;padding-bott
       <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#efe5d6"/></linearGradient>
       <g id="card"><rect x="-38" y="-56" width="76" height="112" rx="10" fill="url(#cg)" stroke="#d9c9b5"/><rect x="-31" y="-49" width="62" height="98" rx="6" fill="none" stroke="#e8dccb"/></g>
     </defs>
-    <g class="c" style="transform:rotate(-27deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#1c0e11">A</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#1c0e11">♠</text></g>
-    <g class="c" style="transform:rotate(-9deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#cf1430">Q</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#cf1430">♥</text></g>
-    <g class="c" style="transform:rotate(9deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#cf1430">K</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#cf1430">♦</text></g>
-    <g class="c" style="transform:rotate(27deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#1c0e11">J</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#1c0e11">♣</text></g>
+    <g class="c" style="transform:rotate(-27deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="IBM Plex Sans Arabic" font-weight="700" font-size="17" fill="#1c0e11">A</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#1c0e11">♠</text></g>
+    <g class="c" style="transform:rotate(-9deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="IBM Plex Sans Arabic" font-weight="700" font-size="17" fill="#cf1430">Q</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#cf1430">♥</text></g>
+    <g class="c" style="transform:rotate(9deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="IBM Plex Sans Arabic" font-weight="700" font-size="17" fill="#cf1430">K</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#cf1430">♦</text></g>
+    <g class="c" style="transform:rotate(27deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="IBM Plex Sans Arabic" font-weight="700" font-size="17" fill="#1c0e11">J</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#1c0e11">♣</text></g>
   </svg>
 </div></header>
 
