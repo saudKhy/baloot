@@ -9,91 +9,147 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="استراحة الخبول">
-<meta name="theme-color" content="#c8102e">
+<meta name="theme-color" content="#3a0912">
 <title>استراحة الخبول</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* VOICE: لعب استراحة، خفيف ومباشر، الأرقام هي البطل
-   IDEA: ورقة الحساب على طاولة الورق — كل لاعب ورقة لعب فيها مجموعه
-   PICTURE: صف أوراق لعب كبيرة بالمجاميع الحية، المتصدر مرفوع
-   COLOUR and TYPE: أحمر الورق #c8102e على أبيض وحبر أسود؛ Lalezar للعناوين والأرقام، Plex Arabic للنص
-   LAYOUT: شريط أحمر بالعنوان والتبويبات، الأوراق، إدخال الجولة، سجل الجولات */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#130a0c);--ink:light-dark(#17100f,#f5ecea);--red:#c8102e;--redk:light-dark(#a50d26,#ff5a72);--soft:light-dark(#fbeef0,#24120f);--line:light-dark(#ecd9dc,#3a2126);--mute:light-dark(#6b585b,#bba6a9);--card:light-dark(#ffffff,#1d0f12);--ok:light-dark(#0f6b3a,#5fd394)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+/* VOICE: سهرة استراحة — دافية، فيها لعب، والأرقام هي البطل
+   IDEA: طاولة ورق مخملية عنابية، عليها أوراق اللاعبين وورقة الحساب
+   PICTURE: مروحة أوراق مرسومة بالهيدر، وكل لاعب ورقة لعب حقيقية بزواياها ومجموعه بالنص
+   COLOUR and TYPE: مخمل عنابي غامق، أوراق عاجية، أحمر الورق للتمييز؛ Lalezar للأرقام والعناوين، Plex Arabic للنص
+   LAYOUT: هيدر بالمروحة، صف الأوراق، ورقة الإدخال، سجل الجولات على ورق مسطّر */
+:root{color-scheme:dark;--felt:#3a0912;--felt2:#22050b;--ivory:#fbf6ee;--ivory2:#f1e8db;--ink:#1c0e11;--red:#cf1430;--redd:#a30d24;--rose:#f6c9d1;--mute:#7a6669;--line:#e4d7c8;--on:#fbeef0;--onm:#d9aeb6}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "IBM Plex Sans Arabic",system-ui,sans-serif;overflow-x:clip}
-.band{padding:clamp(20px,3.5vw,44px) max(5vw,16px)}
+html{background:var(--felt2)}
+body{margin:0;color:var(--on);font:16px/1.55 "IBM Plex Sans Arabic",system-ui,sans-serif;overflow-x:clip;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);
+background:radial-gradient(120% 70% at 50% 0%,#5a1220 0%,var(--felt) 45%,var(--felt2) 100%) fixed,var(--felt2)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 2 26 14 14 26 2 14Z' fill='none' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E")}
+.band{padding:clamp(18px,3vw,36px) max(5vw,16px);position:relative}
 .wrap{max-width:1100px;margin:0 auto}
-header.band{background:var(--red);color:#fff;position:relative;overflow:hidden;padding-top:max(clamp(20px,3.5vw,44px),calc(env(safe-area-inset-top) + 14px))}
-body{padding-bottom:env(safe-area-inset-bottom)}
-header .suits{position:absolute;inset-inline-start:-10px;top:-30px;font-size:150px;line-height:1;opacity:.12;letter-spacing:-10px;pointer-events:none;white-space:nowrap}
-h1{font:400 clamp(38px,7vw,58px)/1.05 Lalezar,sans-serif;margin:0 0 14px;text-wrap:balance}
-.tabs{display:flex;gap:8px;flex-wrap:wrap}
-.tabs button{font:inherit;font-weight:700;font-size:17px;min-height:44px;padding:0 22px;border-radius:999px;border:2px solid #fff;background:transparent;color:#fff;cursor:pointer}
-.tabs button[aria-selected=true]{background:#fff;color:var(--red)}
 button,select,input{font:inherit;font-size:16px}
-button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--redk);outline-offset:2px}
-.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
-.pc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 12px;position:relative;box-shadow:0 1px 0 var(--line),0 10px 24px -16px rgba(80,0,10,.35);transition:transform .25s}
-.pc.lead{border-color:var(--red);transform:translateY(-6px);box-shadow:0 14px 28px -14px rgba(200,16,46,.55)}
-.pc .s{position:absolute;inset-inline-end:12px;top:8px;font-size:26px;color:var(--mute)}
-.pc .s.r{color:var(--red)}
-.pc input{width:calc(100% - 30px);border:0;border-bottom:1px dashed var(--line);background:transparent;color:var(--ink);font-weight:700;padding:4px 0;min-height:36px}
-.pc .t{display:block;font:400 clamp(44px,8vw,60px)/1.1 Lalezar,sans-serif;margin-top:6px;text-align:start}
-.pc .t.neg{color:var(--redk)}
-.pc small{color:var(--mute);font-size:14px}
-.teams{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.teams div{flex:1 1 200px;background:var(--soft);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.teams b{font:400 28px Lalezar,sans-serif}
-.win{background:var(--ink);color:var(--bg);border-radius:14px;padding:14px 18px;margin-bottom:16px;font-weight:700;font-size:18px}
-.panel{background:var(--soft);border-radius:18px;padding:clamp(16px,3vw,26px)}
-h2{font:400 28px/1.1 Lalezar,sans-serif;margin:0 0 6px}
-.sub{color:var(--mute);margin:0 0 14px;font-size:15px}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.chip{min-height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-weight:700}
-.chip[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff}
-.chip:disabled{opacity:.35;text-decoration:line-through;cursor:not-allowed}
-.rows{display:grid;gap:10px}
-.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.row .lab{font-weight:700;min-width:96px}
-.row .lab .r{color:var(--red)}
-select,input[type=number]{min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);padding:0 10px}
-input[type=number]{width:96px;text-align:center}
-label.ck{display:inline-flex;align-items:center;gap:6px;min-height:44px;cursor:pointer}
-label.ck input{width:20px;height:20px;accent-color:var(--red)}
+:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+
+header.band{padding-top:max(26px,calc(env(safe-area-inset-top) + 14px));padding-bottom:8px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px}
+h1{font:400 clamp(44px,9vw,76px)/1 Lalezar,sans-serif;margin:0;color:#fff;text-shadow:0 3px 0 var(--redd),0 10px 30px rgba(0,0,0,.4);text-wrap:balance}
+.tag{color:var(--onm);margin:6px 0 16px;font-size:16px}
+.fan{width:clamp(130px,26vw,230px);height:auto;filter:drop-shadow(0 14px 18px rgba(0,0,0,.45))}
+.fan .c{transform-box:view-box;transform-origin:110px 190px;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.tabs{display:inline-flex;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px;gap:4px}
+.tabs button{min-height:46px;padding:0 26px;border-radius:999px;border:0;background:transparent;color:var(--onm);font-weight:700;font-size:17px;cursor:pointer;transition:background .2s,color .2s}
+.tabs button[aria-selected=true]{background:var(--ivory);color:var(--red);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:clamp(10px,2vw,18px);padding-top:14px}
+.pc{position:relative;background:linear-gradient(160deg,#fff,var(--ivory) 60%,var(--ivory2));color:var(--ink);border-radius:18px;padding:34px 16px 30px;aspect-ratio:5/6.4;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 1px 0 #fff inset,0 18px 30px -14px rgba(0,0,0,.6);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.pc::after{content:"";position:absolute;inset:8px;border:1.5px solid var(--line);border-radius:12px;pointer-events:none}
+.pc.lead{transform:translateY(-10px) rotate(-1.5deg);box-shadow:0 0 0 3px var(--red),0 26px 40px -14px rgba(207,20,48,.7)}
+.ix{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1;font-weight:700;z-index:1}
+.ix b{font:400 24px Lalezar,sans-serif}.ix i{font-style:normal;font-size:20px;margin-top:2px}
+.ix.tl{top:14px;inset-inline-start:16px}.ix.br{bottom:14px;inset-inline-end:16px;transform:rotate(180deg)}
+.r{color:var(--red)}
+.pc input{position:relative;z-index:2;width:85%;text-align:center;border:0;border-radius:8px;background:transparent;color:var(--ink);font-weight:700;font-size:17px;padding:4px;min-height:38px}
+.pc input:hover,.pc input:focus{background:rgba(0,0,0,.05)}
+.pc .t{display:block;font:400 clamp(46px,8.5vw,68px)/1 Lalezar,sans-serif;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.pc .t.neg{color:var(--red)}
+.pc small{position:relative;z-index:2;font-size:14px;color:var(--mute);font-weight:600}
+.pc .crown{position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:44px;z-index:3}
+.pc.bump .t{animation:bump .6s}
+@keyframes bump{30%{transform:scale(1.18)}}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
+.teams div{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.teams div.lead{border-color:var(--rose)}
+.teams b{font:400 32px Lalezar,sans-serif;color:#fff}
+
+.win{display:flex;align-items:center;gap:14px;background:var(--ivory);color:var(--ink);border-radius:18px;padding:14px 18px;margin-bottom:8px;box-shadow:0 0 0 3px var(--red),0 20px 40px -18px #000}
+.win svg{width:48px;flex:none}
+.win b{font:400 26px/1.2 Lalezar,sans-serif;display:block}
+
+.sheet{color-scheme:light;background:var(--ivory);color:var(--ink);border-radius:22px;padding:clamp(18px,3vw,30px);box-shadow:0 30px 50px -24px rgba(0,0,0,.7)}
+.sheet h2{font:400 clamp(28px,4.5vw,36px)/1.1 Lalezar,sans-serif;margin:0}
+.sub{color:var(--mute);margin:4px 0 16px;font-size:15px}
+.prog{display:flex;gap:6px;margin:0 0 16px}
+.prog span{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.prog span.d{background:var(--red)}.prog span.c{background:var(--redd);opacity:.45}
+.chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:84px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;transition:transform .2s,background .2s}
+.chip .g{font:400 28px/1 Lalezar,sans-serif;color:var(--red)}
+.chip[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff;transform:translateY(-4px);box-shadow:0 10px 18px -10px var(--red)}
+.chip[aria-pressed=true] .g{color:#fff}
+.chip:disabled{opacity:.3;cursor:not-allowed;background:var(--ivory2)}
+.rows{display:grid;gap:8px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.row .lab{font-weight:700;min-width:96px;font-size:17px}
+.row .lab .s{font-size:20px}
+select,input[type=number]{min-height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--ivory);color:var(--ink);padding:0 12px}
+input[type=number]{width:100px;text-align:center;font-weight:700}
+label.ck{display:inline-flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;font-weight:600}
+label.ck input{width:22px;height:22px;accent-color:var(--red)}
 .step{display:inline-flex;align-items:center;gap:6px;margin-inline-start:auto}
-.step button{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:22px;cursor:pointer}
-.step output{min-width:34px;text-align:center;font:400 26px Lalezar,sans-serif}
-.pts{margin-inline-start:auto;font-weight:700;color:var(--redk);white-space:nowrap}
-.pts.p{color:var(--ok)}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
-.go{min-height:48px;padding:0 26px;border-radius:12px;border:0;background:var(--red);color:#fff;font-weight:700;font-size:17px;cursor:pointer}
-.go:disabled{opacity:.4;cursor:not-allowed}
-.ghost{min-height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
-.err{color:var(--redk);font-weight:600;font-size:15px}
-.set{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:18px;color:var(--mute);font-size:15px}
+.step button{width:46px;height:46px;border-radius:50%;border:0;background:var(--ivory2);color:var(--ink);font-size:24px;cursor:pointer}
+.step button.p{background:var(--red);color:#fff}
+.step output{min-width:36px;text-align:center;font:400 30px Lalezar,sans-serif}
+.pts{font:400 22px Lalezar,sans-serif;color:var(--red);white-space:nowrap;min-width:52px;text-align:center}
+.pts.p{color:#0f6b3a}
+.row .pts.end{margin-inline-start:auto}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:18px}
+.go{min-height:54px;padding:0 34px;border-radius:999px;border:0;background:var(--red);color:#fff;font-weight:700;font-size:18px;cursor:pointer;box-shadow:0 10px 20px -10px var(--red);transition:transform .15s}
+.go:active{transform:scale(.97)}
+.go:disabled{opacity:.35;box-shadow:none;cursor:not-allowed}
+.prev{font-weight:700;color:var(--mute)}
+.err{color:var(--red);font-weight:600;font-size:15px}
+.note{color:var(--mute);font-size:14px;margin-top:12px}
+.set{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px;color:var(--onm);font-size:15px}
+.set select{background:rgba(0,0,0,.25);color:var(--on);border-color:rgba(255,255,255,.18);color-scheme:dark}
+.set label.ck input{accent-color:var(--rose)}
+.ghost{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.2);color:var(--on);cursor:pointer;font-weight:600}
+.ghost:disabled{opacity:.4;cursor:not-allowed}
+.ghost.warn{background:var(--red);border-color:var(--red)}
+
+.log{color-scheme:light;background:var(--ivory);color:var(--ink);border-radius:22px;padding:clamp(16px,3vw,26px)}
+.log h2{font:400 30px/1.1 Lalezar,sans-serif;margin:0 0 6px}
 table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:start}
-th{color:var(--mute);font-weight:600}
-td.n{text-align:end;white-space:nowrap;font-weight:700}
-td.n.neg{color:var(--redk)}
-.x{border:0;background:transparent;color:var(--mute);font-size:20px;width:44px;height:44px;cursor:pointer}
-.empty{color:var(--mute);padding:18px 0}
-.note{color:var(--mute);font-size:14px;margin-top:10px}
-pre,.scroll{overflow-x:auto}
-@media(max-width:600px){table{font-size:13px}.row .lab{min-width:0;flex:1 1 100%}.pc .t{font-size:44px}}
-@media(prefers-reduced-motion:reduce){.pc{transition:none}}
+th,td{padding:10px 8px;text-align:start}
+th{color:var(--mute);font-weight:600;font-size:14px}
+tbody tr{border-top:1px solid var(--line)}
+td.n{text-align:end;white-space:nowrap;font:400 20px Lalezar,sans-serif}
+td.n.neg{color:var(--red)}td.n.pos{color:#0f6b3a}
+td small{color:var(--mute)}
+.x{border:0;background:transparent;color:var(--mute);font-size:22px;width:44px;height:44px;cursor:pointer;border-radius:50%}
+.x:hover{background:var(--ivory2)}
+.empty{color:var(--mute);padding:14px 0}
+.scroll{overflow-x:auto}
+footer{color:var(--onm);text-align:center;font-size:13px;opacity:.7;padding-bottom:28px}
+@media(max-width:600px){
+  .chips{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.chip{min-height:72px;font-size:12px}.chip .g{font-size:24px}
+  .row .lab{min-width:0;flex:1 1 auto}
+  .pc{padding:30px 10px 26px}.ix b{font-size:20px}.ix i{font-size:17px}
+  table{font-size:13px}td.n{font-size:17px}
+  .tabs button{padding:0 20px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<header class="band"><div class="wrap">
-  <div class="suits" aria-hidden="true">♠♥♦♣</div>
-  <h1>استراحة الخبول</h1>
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tab-trix" data-act="tab" data-v="trix">تريكس</button>
-    <button role="tab" id="tab-hand" data-act="tab" data-v="hand">هند</button>
+<header class="band"><div class="wrap hero">
+  <div>
+    <h1>استراحة الخبول</h1>
+    <p class="tag">حاسبة التريكس والهند — سجّل، وخلّ الحساب علينا</p>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-trix" data-act="tab" data-v="trix">تريكس</button>
+      <button role="tab" id="tab-hand" data-act="tab" data-v="hand">هند</button>
+    </div>
   </div>
+  <svg class="fan" viewBox="0 0 220 200" aria-hidden="true">
+    <defs>
+      <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#efe5d6"/></linearGradient>
+      <g id="card"><rect x="-38" y="-56" width="76" height="112" rx="10" fill="url(#cg)" stroke="#d9c9b5"/><rect x="-31" y="-49" width="62" height="98" rx="6" fill="none" stroke="#e8dccb"/></g>
+    </defs>
+    <g class="c" style="transform:rotate(-27deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#1c0e11">A</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#1c0e11">♠</text></g>
+    <g class="c" style="transform:rotate(-9deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#cf1430">Q</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#cf1430">♥</text></g>
+    <g class="c" style="transform:rotate(9deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#cf1430">K</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#cf1430">♦</text></g>
+    <g class="c" style="transform:rotate(27deg)"><use href="#card" x="110" y="96"/><text x="84" y="58" font-family="Lalezar" font-size="17" fill="#1c0e11">J</text><text x="110" y="112" text-anchor="middle" font-size="40" fill="#1c0e11">♣</text></g>
+  </svg>
 </div></header>
 
 <section class="band"><div class="wrap">
@@ -102,22 +158,24 @@ pre,.scroll{overflow-x:auto}
   <div id="teams"></div>
 </div></section>
 
-<section class="band" style="padding-top:0"><div class="wrap">
-  <div class="panel" id="entry"></div>
+<section class="band" style="padding-top:4px"><div class="wrap">
+  <div class="sheet" id="entry"></div>
   <div class="set" id="settings"></div>
 </div></section>
 
-<section class="band" style="padding-top:0"><div class="wrap">
-  <h2>سجل الجولات</h2>
-  <div class="scroll" id="hist"></div>
+<section class="band" style="padding-top:4px"><div class="wrap">
+  <div class="log"><h2>سجل الجولات</h2><div class="scroll" id="hist"></div></div>
 </div></section>
+<footer>استراحة الخبول ♠ ♥ ♦ ♣</footer>
 
 <script>
 {
-const SU=['♠','♥','♦','♣'];
+const SU=['♠','♥','♦','♣'],RK=['A','K','Q','J','10'];
 const TN={ks:'شيخ الكبة',bn:'بنات',dn:'ديناري',lt:'لطوش',tx:'تريكس'};
+const TG={ks:'K♥',bn:'Q',dn:'♦',lt:'١٣',tx:'J'};
 const TORDER=['ks','bn','dn','lt','tx'];
 const KEY='khabool-v1';
+const CROWN='<svg viewBox="0 0 48 36"><path d="M4 30 2 8l12 10 10-16 10 16 12-10-2 22Z" fill="#cf1430" stroke="#fbf6ee" stroke-width="2.5" stroke-linejoin="round"/><circle cx="24" cy="22" r="3.5" fill="#fbf6ee"/></svg>';
 const def=()=>({tab:'trix',
   trix:{names:['لاعب ١','لاعب ٢','لاعب ٣','لاعب ٤'],teams:false,rounds:[]},
   hand:{n:4,names:['لاعب ١','لاعب ٢','لاعب ٣','لاعب ٤','لاعب ٥'],limit:5,teams:false,rounds:[]}});
@@ -126,7 +184,7 @@ try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.trix||!S.hand)S=def();
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const blank=()=>({cnt:[0,0,0,0],q:[0,1,2,3].map(()=>({e:'',d:false,by:''})),k:{e:'',d:false,by:''},tx:['','','',''],out:'',hh:false,pts:[],nd:[]});
-let T=blank(),ttype=null,confirmReset=false;
+let T=blank(),ttype=null,confirmReset=false,prevT=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=n=>(n>0?'+':'')+n;
@@ -136,60 +194,60 @@ const names=()=>G().names.slice(0,np());
 const totals=()=>{const t=Array(np()).fill(0);G().rounds.forEach(r=>r.d.forEach((v,i)=>{if(i<t.length)t[i]+=v}));return t};
 const hiWins=()=>S.tab==='trix';
 const maxR=()=>S.tab==='trix'?20:S.hand.limit;
-const opts=(sel,excl)=>'<option value="">— مين؟ —</option>'+names().map((n,i)=>i===excl?'':`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${esc(n)}</option>`).join('');
+const red=i=>i%4===1||i%4===2;
+const opts=(sel,ph)=>`<option value="">${ph||'— مين؟ —'}</option>`+names().map((n,i)=>`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${esc(n)}</option>`).join('');
 
 function board(){
-  const t=totals(),best=G().rounds.length?(hiWins()?Math.max(...t):Math.min(...t)):null;
+  const g=G(),t=totals(),has=g.rounds.length>0,best=has?(hiWins()?Math.max(...t):Math.min(...t)):null;
   const sorted=[...t].sort((a,b)=>hiWins()?b-a:a-b);
   $('board').innerHTML=names().map((n,i)=>{
-    const lead=best!==null&&t[i]===best,rk=G().rounds.length?sorted.indexOf(t[i])+1:0;
-    return `<div class="pc ${lead?'lead':''}"><span class="s ${i%4===1||i%4===2?'r':''}">${SU[i%4]}</span>
+    const lead=has&&t[i]===best,rk=has?sorted.indexOf(t[i])+1:0,bump=prevT&&prevT[i]!==undefined&&prevT[i]!==t[i];
+    const ix=`<b>${RK[i]}</b><i>${SU[i%4]}</i>`;
+    return `<div class="pc ${lead?'lead':''} ${bump?'bump':''}">${lead?`<span class="crown">${CROWN}</span>`:''}
+      <span class="ix tl ${red(i)?'r':''}">${ix}</span><span class="ix br ${red(i)?'r':''}">${ix}</span>
       <input data-nm="${i}" value="${esc(n)}" aria-label="اسم اللاعب ${i+1}">
       <b class="t ${t[i]<0?'neg':''}" dir="ltr">${t[i]}</b>
-      <small>${rk?(lead?'المتصدر':'المركز '+rk):'ما بدأ اللعب'}</small></div>`}).join('');
-  const g=G();
+      <small>${rk?(lead?'المتصدر':'المركز '+rk):'جاهز'}</small></div>`}).join('');
+  prevT=t;
   if(g.teams&&np()===4){
-    const nm=names(),a=t[0]+t[2],b=t[1]+t[3];
-    $('teams').innerHTML=`<div class="teams"><div><span>${esc(nm[0])} + ${esc(nm[2])}</span><b dir="ltr">${a}</b></div><div><span>${esc(nm[1])} + ${esc(nm[3])}</span><b dir="ltr">${b}</b></div></div>`;
+    const nm=names(),a=t[0]+t[2],b=t[1]+t[3],la=has&&(hiWins()?a>b:a<b),lb=has&&(hiWins()?b>a:b<a);
+    $('teams').innerHTML=`<div class="teams"><div class="${la?'lead':''}"><span>${esc(nm[0])} + ${esc(nm[2])}</span><b dir="ltr">${a}</b></div><div class="${lb?'lead':''}"><span>${esc(nm[1])} + ${esc(nm[3])}</span><b dir="ltr">${b}</b></div></div>`;
   }else $('teams').innerHTML='';
-  const done=g.rounds.length>=maxR();
-  if(done){
+  if(g.rounds.length>=maxR()){
     let w;
-    if(g.teams&&np()===4){const a=t[0]+t[2],b=t[1]+t[3],nm=names();w=a===b?'تعادل بين الفريقين':`فاز فريق ${(hiWins()?a>b:a<b)?nm[0]+' و '+nm[2]:nm[1]+' و '+nm[3]}`}
+    if(g.teams&&np()===4){const a=t[0]+t[2],b=t[1]+t[3],nm=names();w=a===b?'تعادل بين الفريقين':`فاز ${(hiWins()?a>b:a<b)?nm[0]+' و '+nm[2]:nm[1]+' و '+nm[3]}`}
     else{const ws=names().filter((n,i)=>t[i]===best);w=(ws.length>1?'تعادل: ':'الفايز: ')+ws.join(' و ')}
-    $('win').innerHTML=`<div class="win">خلصت اللعبة — ${esc(w)}</div>`;
+    $('win').innerHTML=`<div class="win">${CROWN}<div><b>${esc(w)}</b><span style="color:var(--mute)">خلصت اللعبة — مبروك، والباقين حظ أوفر</span></div></div>`;
   }else $('win').innerHTML='';
 }
 
 function trixEntry(){
-  const R=S.trix.rounds,i=R.length;
+  const R=S.trix.rounds,i=R.length,nm=names();
   if(i>=20)return `<h2>خلصت الممالك الأربع</h2><p class="sub">ابدأ لعبة جديدة من تحت.</p>`;
   const k=Math.floor(i/5),owner=k%4,used=R.filter(r=>r.k===k).map(r=>r.type);
   if(ttype&&used.includes(ttype))ttype=null;
-  const left=TORDER.filter(x=>!used.includes(x)).map(x=>TN[x]).join('، ');
-  let h=`<h2>مملكة ${esc(names()[owner])}</h2><p class="sub">المملكة ${k+1} من ٤ · الجولة ${i+1} من ٢٠ · باقي: ${left}</p>
-  <div class="chips">${TORDER.map(x=>`<button class="chip" data-act="type" data-v="${x}" aria-pressed="${ttype===x}" ${used.includes(x)?'disabled':''}>${TN[x]}</button>`).join('')}</div>`;
-  if(!ttype)return h+`<p class="sub">اختر وش اختار صاحب المملكة.</p>`;
-  const nm=names();
+  let h=`<h2>مملكة ${esc(nm[owner])}</h2><p class="sub">المملكة ${k+1} من ٤ · الجولة ${i+1} من ٢٠</p>
+  <div class="prog">${Array.from({length:20},(_,j)=>`<span class="${j<i?'d':j===i?'c':''}"></span>`).join('')}</div>
+  <div class="chips">${TORDER.map(x=>`<button class="chip" data-act="type" data-v="${x}" aria-pressed="${ttype===x}" ${used.includes(x)?'disabled':''}><span class="g">${TG[x]}</span>${TN[x]}</button>`).join('')}</div>`;
+  if(!ttype)return h+`<p class="sub" style="margin:0">وش اختار ${esc(nm[owner])}؟</p>`;
   if(ttype==='lt'||ttype==='dn'){
     const u=ttype==='lt'?15:10,sum=T.cnt.reduce((a,b)=>a+b,0);
     h+=`<div class="rows">${nm.map((n,j)=>`<div class="row"><span class="lab">${esc(n)}</span>
       <span class="pts" dir="ltr">${T.cnt[j]?-u*T.cnt[j]:0}</span>
-      <span class="step"><button data-act="dec" data-i="${j}" aria-label="أنقص">−</button><output>${T.cnt[j]}</output><button data-act="inc" data-i="${j}" aria-label="زد">+</button></span></div>`).join('')}</div>
-      <p class="note">${ttype==='lt'?'عدد الأكلات (اللطوش) لكل لاعب، كل لطش −15':'عدد أوراق الديناري لكل لاعب، كل ورقة −10'} · المجموع ${sum} من ١٣</p>`;
+      <span class="step"><button data-act="dec" data-i="${j}" aria-label="أنقص">−</button><output>${T.cnt[j]}</output><button class="p" data-act="inc" data-i="${j}" aria-label="زد">+</button></span></div>`).join('')}</div>
+      <p class="note">${ttype==='lt'?'عدد الأكلات لكل لاعب، كل لطش −15':'عدد أوراق الديناري لكل لاعب، كل ورقة −10'} · المجموع ${sum} من ١٣</p>`;
   }else if(ttype==='bn'||ttype==='ks'){
-    const items=ttype==='bn'?[0,1,2,3].map(s=>({o:T.q[s],path:'q.'+s,lab:`بنت <span class="${s===1||s===2?'r':''}">${SU[s]}</span>`})):[{o:T.k,path:'k',lab:'شيخ <span class="r">♥</span>'}];
+    const items=ttype==='bn'?[0,1,2,3].map(s=>({o:T.q[s],p:'q.'+s,lab:`بنت <span class="s ${s===1||s===2?'r':''}">${SU[s]}</span>`})):[{o:T.k,p:'k',lab:'شيخ <span class="s r">♥</span>'}];
     h+=`<div class="rows">${items.map(it=>`<div class="row"><span class="lab">${it.lab}</span>
-      <select data-f="${it.path}.e" aria-label="مين أكلها">${opts(it.o.e)}</select>
-      <label class="ck"><input type="checkbox" data-f="${it.path}.d" ${it.o.d?'checked':''}> مدبّلة</label>
-      ${it.o.d?`<select data-f="${it.path}.by" aria-label="مين دبّلها">${opts(it.o.by).replace('— مين؟ —','— مين دبّل؟ —')}</select>`:''}</div>`).join('')}</div>
-      <p class="note">${ttype==='bn'?'البنت −25، المدبّلة −50 على اللي أكلها و+25 للي دبّلها.':'الشيخ −75، المدبّل −150 على اللي أكله و+75 للي دبّله.'} لو المدبّل أكل ورقته تنحسب عليه بس.</p>`;
+      <select data-f="${it.p}.e" aria-label="مين أكلها">${opts(it.o.e,'— مين أكلها؟ —')}</select>
+      <label class="ck"><input type="checkbox" data-f="${it.p}.d" ${it.o.d?'checked':''}> مدبّلة</label>
+      ${it.o.d?`<select data-f="${it.p}.by" aria-label="مين دبّلها">${opts(it.o.by,'— مين دبّل؟ —')}</select>`:''}</div>`).join('')}</div>
+      <p class="note">${ttype==='bn'?'البنت −25، والمدبّلة −50 على اللي أكلها و+25 للي دبّلها.':'الشيخ −75، والمدبّل −150 على اللي أكله و+75 للي دبّله.'} لو المدبّل أكل ورقته تنحسب عليه بس.</p>`;
   }else{
-    const pr=[200,150,100,50];
-    h+=`<div class="rows">${pr.map((p,j)=>`<div class="row"><span class="lab">المركز ${j+1}</span><select data-f="tx.${j}" aria-label="المركز ${j+1}">${opts(T.tx[j])}</select><span class="pts p" dir="ltr">+${p}</span></div>`).join('')}</div>`;
+    h+=`<div class="rows">${[200,150,100,50].map((p,j)=>`<div class="row"><span class="lab">المركز ${j+1}</span><select data-f="tx.${j}" aria-label="المركز ${j+1}">${opts(T.tx[j])}</select><span class="pts p end" dir="ltr">+${p}</span></div>`).join('')}</div>`;
   }
   const c=calcTrix();
-  return h+`<div class="bar"><button class="go" data-act="save" ${c.err?'disabled':''}>سجّل الجولة</button>${c.err?`<span class="err">${c.err}</span>`:`<span class="sub" style="margin:0" dir="ltr">${c.d.map(fmt).join(' · ')}</span>`}</div>`;
+  return h+`<div class="bar"><button class="go" data-act="save" ${c.err?'disabled':''}>سجّل الجولة</button>${c.err?`<span class="err">${c.err}</span>`:`<span class="prev" dir="ltr">${c.d.map(fmt).join('  ·  ')}</span>`}</div>`;
 }
 function calcTrix(){
   const d=[0,0,0,0];
@@ -200,7 +258,7 @@ function calcTrix(){
   if(ttype==='bn'||ttype==='ks'){
     const list=ttype==='bn'?T.q:[T.k],base=ttype==='bn'?25:75;
     for(const o of list){
-      if(o.e==='')return{err:'حدد مين أكل كل ورقة'};
+      if(o.e==='')return{err:ttype==='bn'?'حدد مين أكل كل بنت':'حدد مين أكل الشيخ'};
       const e=+o.e;
       if(o.d){if(o.by==='')return{err:'حدد مين دبّل'};const b=+o.by;d[e]-=base*2;if(b!==e)d[b]+=base}
       else d[e]-=base;
@@ -216,21 +274,22 @@ function calcTrix(){
 }
 
 function handEntry(){
-  const H=S.hand,i=H.rounds.length;
+  const H=S.hand,i=H.rounds.length,nm=names();
   if(i>=H.limit)return `<h2>خلصت الجولات</h2><p class="sub">زد عدد الجولات من تحت أو ابدأ لعبة جديدة.</p>`;
-  const nm=names(),out=T.out===''?null:+T.out,m=T.hh?2:1;
-  let h=`<h2>الجولة ${i+1} من ${H.limit}</h2><p class="sub">الأقل نقاط هو الفايز.</p>
-  <div class="row" style="margin-bottom:10px"><span class="lab">مين نزل؟</span><select data-f="out" aria-label="مين نزل">${opts(T.out)}</select>
+  const out=T.out===''?null:+T.out,m=T.hh?2:1;
+  let h=`<h2>الجولة ${i+1} من ${H.limit}</h2><p class="sub">الأقل نقاط هو الفايز</p>
+  <div class="prog">${Array.from({length:H.limit},(_,j)=>`<span class="${j<i?'d':j===i?'c':''}"></span>`).join('')}</div>
+  <div class="row" style="margin-bottom:8px;border-color:var(--red)"><span class="lab">مين نزل؟</span><select data-f="out" aria-label="مين نزل">${opts(T.out)}</select>
   <label class="ck"><input type="checkbox" data-f="hh" ${T.hh?'checked':''}> نزل هند (كل شي دبل)</label></div><div class="rows">`;
   h+=nm.map((n,j)=>{
-    if(j===out)return `<div class="row"><span class="lab">${esc(n)}</span><span>نزل</span><span class="pts p" dir="ltr">${-30*m}</span></div>`;
+    if(j===out)return `<div class="row"><span class="lab">${esc(n)}</span><span style="color:var(--mute);font-weight:600">${T.hh?'نزل هند':'نزل'}</span><span class="pts p end" dir="ltr">${-30*m}</span></div>`;
     const nd=!!T.nd[j],v=nd?100:(+T.pts[j]||0);
     return `<div class="row"><span class="lab">${esc(n)}</span>
       <input type="number" inputmode="numeric" min="0" data-f="pts.${j}" data-live="1" value="${T.pts[j]??''}" placeholder="نقاط" aria-label="نقاط ${esc(n)}" ${nd?'disabled':''}>
-      <label class="ck"><input type="checkbox" data-f="nd.${j}" ${nd?'checked':''}> ما نزل (+100)</label>
-      <span class="pts" id="hp${j}" dir="ltr">+${v*m}</span></div>`}).join('')+'</div>';
+      <label class="ck"><input type="checkbox" data-f="nd.${j}" ${nd?'checked':''}> ما نزل</label>
+      <span class="pts end" id="hp${j}" dir="ltr">+${v*m}</span></div>`}).join('')+'</div>';
   const c=calcHand();
-  return h+`<p class="note">النازل −30 (هند −60). الباقين يحسبون ورقهم، ولو ما نزل أبد +100، وبالهند كل شي يتدبّل.</p>
+  return h+`<p class="note">النازل −30 (بالهند −60). الباقين يحسبون ورقهم، واللي ما نزل أبد +100، وبالهند كل شي يتدبّل.</p>
   <div class="bar"><button class="go" id="hsave" data-act="save" ${c.err?'disabled':''}>سجّل الجولة</button><span class="err" id="herr">${c.err||''}</span></div>`;
 }
 function calcHand(){
@@ -245,31 +304,29 @@ function calcHand(){
   return{d};
 }
 
-function entry(){$('entry').innerHTML=S.tab==='trix'?trixEntry():handEntry()}
-
 function settings(){
   const g=G();let h='';
   if(S.tab==='hand'){
-    h+=`<label>عدد اللاعبين <select id="sn" ${g.rounds.length?'disabled':''}>${[2,3,4,5].map(n=>`<option ${n===g.n?'selected':''}>${n}</option>`).join('')}</select></label>
-    <label>عدد الجولات <select id="sl">${[3,5,7,10,15].map(n=>`<option ${n===g.limit?'selected':''}>${n}</option>`).join('')}</select></label>`;
+    h+=`<label>اللاعبين <select id="sn" ${g.rounds.length?'disabled':''}>${[2,3,4,5].map(n=>`<option ${n===g.n?'selected':''}>${n}</option>`).join('')}</select></label>
+    <label>الجولات <select id="sl">${[3,5,7,10,15].map(n=>`<option ${n===g.limit?'selected':''}>${n}</option>`).join('')}</select></label>`;
   }
   if(np()===4)h+=`<label class="ck"><input type="checkbox" id="steams" ${g.teams?'checked':''}> زوجي (الأول مع الثالث)</label>`;
-  h+=`<button class="ghost" data-act="undo" ${g.rounds.length?'':'disabled'}>تراجع عن آخر جولة</button>
-  <button class="ghost" data-act="reset">${confirmReset?'متأكد؟ اضغط مرة ثانية':'لعبة جديدة'}</button>`;
+  h+=`<button class="ghost" data-act="undo" ${g.rounds.length?'':'disabled'}>↶ تراجع</button>
+  <button class="ghost ${confirmReset?'warn':''}" data-act="reset">${confirmReset?'متأكد؟ اضغط مرة ثانية':'لعبة جديدة'}</button>`;
   $('settings').innerHTML=h;
 }
 
 function hist(){
   const g=G(),nm=names();
-  if(!g.rounds.length){$('hist').innerHTML='<p class="empty">ما فيه جولات للحين. سجّل أول جولة وتطلع هنا.</p>';return}
-  const rows=g.rounds.map((r,i)=>({r,i})).reverse().map(({r,i})=>`<tr><td>${i+1}</td><td>${S.tab==='trix'?TN[r.type]+` <small style="color:var(--mute)">(${esc(nm[r.k%4])})</small>`:(r.hh?'هند ':'نزول ')+'— '+esc(nm[r.out]||'')}</td>${r.d.slice(0,nm.length).map(v=>`<td class="n ${v<0?'neg':''}" dir="ltr">${v?fmt(v):'0'}</td>`).join('')}<td><button class="x" data-act="del" data-i="${i}" aria-label="احذف الجولة ${i+1}">×</button></td></tr>`).join('');
+  if(!g.rounds.length){$('hist').innerHTML='<p class="empty">ما فيه جولات للحين — أول جولة تسجلها تطلع هنا.</p>';return}
+  const rows=g.rounds.map((r,i)=>({r,i})).reverse().map(({r,i})=>`<tr><td>${i+1}</td><td>${S.tab==='trix'?TN[r.type]+` <small>(${esc(nm[r.k%4])})</small>`:(r.hh?'هند':'نزل')+` <small>${esc(nm[r.out]||'')}</small>`}</td>${r.d.slice(0,nm.length).map(v=>`<td class="n ${v<0?'neg':v>0?'pos':''}" dir="ltr">${v?fmt(v):'0'}</td>`).join('')}<td><button class="x" data-act="del" data-i="${i}" aria-label="احذف الجولة ${i+1}">×</button></td></tr>`).join('');
   $('hist').innerHTML=`<table><thead><tr><th>#</th><th>الجولة</th>${nm.map(n=>`<th style="text-align:end">${esc(n)}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function render(){
   $('tab-trix').setAttribute('aria-selected',S.tab==='trix');
   $('tab-hand').setAttribute('aria-selected',S.tab==='hand');
-  board();entry();settings();hist();
+  board();$('entry').innerHTML=S.tab==='trix'?trixEntry():handEntry();settings();hist();
 }
 const setPath=(o,p,v)=>{const k=p.split('.');let x=o;for(let i=0;i<k.length-1;i++)x=x[k[i]];x[k[k.length-1]]=v};
 
@@ -277,35 +334,35 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   const a=b.dataset.act;
   if(a!=='reset')confirmReset=false;
-  if(a==='tab'){S.tab=b.dataset.v;T=blank();ttype=null}
+  if(a==='tab'){if(S.tab!==b.dataset.v){S.tab=b.dataset.v;prevT=null}T=blank();ttype=null}
   else if(a==='type'){ttype=b.dataset.v;T=blank()}
   else if(a==='inc'||a==='dec'){const j=+b.dataset.i,s=T.cnt.reduce((x,y)=>x+y,0);if(a==='inc'&&s<13)T.cnt[j]++;if(a==='dec'&&T.cnt[j]>0)T.cnt[j]--}
   else if(a==='save'){
     const c=S.tab==='trix'?calcTrix():calcHand();if(c.err)return;
-    if(S.tab==='trix'){const k=Math.floor(S.trix.rounds.length/5);S.trix.rounds.push({type:ttype,k,d:c.d});ttype=null}
+    if(S.tab==='trix'){S.trix.rounds.push({type:ttype,k:Math.floor(S.trix.rounds.length/5),d:c.d});ttype=null}
     else S.hand.rounds.push({out:+T.out,hh:T.hh,d:c.d});
     T=blank();
   }
   else if(a==='undo')G().rounds.pop();
   else if(a==='del')G().rounds.splice(+b.dataset.i,1);
-  else if(a==='reset'){if(!confirmReset){confirmReset=true}else{confirmReset=false;G().rounds=[];T=blank();ttype=null}}
+  else if(a==='reset'){if(!confirmReset)confirmReset=true;else{confirmReset=false;G().rounds=[];T=blank();ttype=null;prevT=null}}
   save();render();
 });
 document.addEventListener('change',e=>{
   const el=e.target;
   if(el.dataset.live)return;
   if(el.dataset.nm!==undefined){G().names[+el.dataset.nm]=el.value.trim()||('لاعب '+(+el.dataset.nm+1));save();render();return}
-  if(el.id==='sn'){S.hand.n=+el.value;T=blank()}
+  if(el.id==='sn'){S.hand.n=+el.value;T=blank();prevT=null}
   else if(el.id==='sl')S.hand.limit=+el.value;
   else if(el.id==='steams')G().teams=el.checked;
-  else if(el.dataset.f){setPath(T,el.dataset.f,el.type==='checkbox'?el.checked:el.value)}
+  else if(el.dataset.f)setPath(T,el.dataset.f,el.type==='checkbox'?el.checked:el.value);
   else return;
   save();render();
 });
 document.addEventListener('input',e=>{
   const el=e.target;if(!el.dataset.live)return;
   setPath(T,el.dataset.f,el.value);
-  const j=+el.dataset.f.split('.')[1],m=T.hh?2:1,v=(+el.value||0)*m,p=$('hp'+j);if(p)p.textContent='+'+v;
+  const j=+el.dataset.f.split('.')[1],p=$('hp'+j);if(p)p.textContent='+'+(+el.value||0)*(T.hh?2:1);
   const c=calcHand();$('hsave').disabled=!!c.err;$('herr').textContent=c.err||'';
 });
 render();
